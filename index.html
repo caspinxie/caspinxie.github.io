@@ -1,34 +1,118 @@
-### 反馈
-如果你认为某个帖子或回复有问题，欢迎向洛谷反馈，以帮助更多的同学。
+#include "Server.h"
 
-$\fcolorbox{#808080}{#ffffff}{{{\scriptsize\kern{3pt}\raisebox{2px}{\sf无法令人理解的无意义内容}}\large　\kern{10pt}﹀}}$
+#ifndef _WIN32
+#include <signal.h>
+#endif
 
-请具体说明理由，以增加反馈的可信度。
+namespace ws28{
 
-$\fcolorbox{#808080}{#ffffff}{\large　\sf{\kern{350pt}}}$
+Server::Server(uv_loop_t *loop, SSL_CTX *ctx) : m_pLoop(loop), m_pSSLContext(ctx){
 
-$\kern{315pt}\fcolorbox{#3498db}{#3498db}{\large　\color{#ffffff}{\scriptsize{\kern{-9.7pt}\raisebox{1.5px}{\sf确定}}}\kern{2.5pt}}$
-$\fcolorbox{#3498db}{#ffffff}{\color{#3498db}{\large　{\scriptsize{\kern{-9.7pt}\raisebox{1.5px}{\sf取消}}}\kern{2.5pt}}}$
+	m_fnCheckConnection = [](Client*, HTTPRequest &req) -> bool {
+		auto host = req.headers.Get("host");
+		if(!host) return true; // No host header, default to accept
+		
+		auto origin = req.headers.Get("origin");
+		if(!origin) return true;
+		
+		return origin == host;
+	};
+	
+}
 
+bool Server::Listen(int port, bool ipv4Only){
+	if(m_Server) return false;
+	
+#ifndef _WIN32
+	signal(SIGPIPE, SIG_IGN);
+#endif
+	
+	auto server = SocketHandle{new uv_tcp_t};
+	uv_tcp_init_ex(m_pLoop, server.get(), ipv4Only ? AF_INET : AF_INET6);
+	server->data = this;
+	
+	struct sockaddr_storage addr;
+	
+	if(ipv4Only){
+		uv_ip4_addr("0.0.0.0", port, (struct sockaddr_in*) &addr);
+	}else{
+		uv_ip6_addr("::0", port, (struct sockaddr_in6*) &addr);
+	}
+	
+	uv_tcp_nodelay(server.get(), (int) true);
+	
+	// Enable SO_REUSEPORT
+#ifndef _WIN32
+	uv_os_fd_t fd;
+	int r = uv_fileno((uv_handle_t*) server.get(), &fd);
+	(void) r;
+	assert(r == 0);
+	int optval = 1;
+	setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
+#endif
+	
+	if(uv_tcp_bind(server.get(), (struct sockaddr*) &addr, 0) != 0){
+		return false;
+	}
+	
+	if(uv_listen((uv_stream_t*) server.get(), 512, [](uv_stream_t* server, int status){
+		((Server*) server->data)->OnConnection(server, status);
+	}) != 0){
+		return false;
+	}
+	
+	m_Server = std::move(server);
+	return true;
+}
 
+void Server::StopListening(){
+	// Just in case we have more logic in the future
+	if(!m_Server) return;
+	
+	m_Server.reset();
+}
 
-------------
+void Server::DestroyClients(){
+	// Clients will erase themselves from this vector
+	while(!m_Clients.empty()){
+		m_Clients.back()->Destroy();
+	}
+}
 
+Server::~Server(){
+	StopListening();
+	DestroyClients();
+}
 
-**举报成功通知** $\kern{+2px}\raisebox{+0.5px}\color{#808080}\scriptsize{{00-00 00:00}}$
+void Server::OnConnection(uv_stream_t* server, int status){
+	if(status < 0) return;
+	
+	SocketHandle socket{new uv_tcp_t};
+	uv_tcp_init(m_pLoop, socket.get());
+	
+	socket->data = nullptr;
 
-> 您举报的内容 ${\small\mathsf{IAKIOI}}$ 已被系统确认违规并删除，感谢您对维护社区秩序做出的贡献。
+	if(uv_accept(server, (uv_stream_t*) socket.get()) == 0){
+		auto client = new Client(this, std::move(socket));
+		m_Clients.emplace_back(client);
+		
+		// If for whatever reason uv_tcp_getpeername failed (happens... somehow?)
+		if(client->GetIP()[0] == '\0') client->Destroy();
+	}
+}
 
+std::unique_ptr<Client> Server::NotifyClientPreDestroyed(Client *client){
+	for(auto it = m_Clients.begin(); it != m_Clients.end(); ++it){
+		if(it->get() == client){
+			std::unique_ptr<Client> r = std::move(*it);
+			*it = std::move(m_Clients.back());
+			m_Clients.pop_back();
+			return r;
+		}
+	}
+	
+	assert(false);
+	return {};
+}
 
-------------
-### $\kern{+33.6px}$ [$\mathsf\color{#bfbfbf}\footnotesize{Limie}$](https://www.luogu.com.cn/user/-1)$\ $的运势
-
-### $\kern{+24.3px}\Huge\mathbf\color{#e74c3c}{§\ 大凶\ §}$
-$\kern{+20px}\small\color{#e74c3c}{\mathbf忌：}\mathsf{玩原神}$ $\kern{+48px}$ **万事皆凶**
-$\kern{-135.8px}\raisebox{-13px}\color{#808080}\scriptsize\sf{学的全忘，蒙的全错}$
-
-$\kern{+12.6px}\color{#e74c3c}\small{{\mathbf忌：}{\mathsf{吃饭}}}$
-$\kern{-54.7px}\raisebox{-13px}\color{#808080}\scriptsize\sf{睡觉}$
-
-$\kern{+30.9px}\color{#808080}\scriptsize\sf{你已经在洛谷连续打卡了}\ \color{#000000}\mathsf{114}\ \color{#808080}\sf{天}$
-
+}
