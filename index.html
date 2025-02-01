@@ -384,4 +384,130 @@
                     
                     if(distance < projectile.radius + (enemy.size/2)) {
                         enemy.health -= projectile.damage;
-                        create
+                        createParticles(enemy.x, enemy.y, enemy.color);
+                        hit = true;
+                        sounds.hit.play().catch(() => {});
+                        
+                        if(projectile.type === 'web') {
+                            enemy.speed *= 0.5;
+                            setTimeout(() => enemy.speed = ENEMY_TYPES[enemy.type]?.speed || 2, 2000);
+                        }
+
+                        if(enemy.health <= 0) {
+                            state.player.xp += enemy.isBoss ? 100 : 10;
+                            if(state.player.xp >= state.player.level * 100) {
+                                state.player.level++;
+                                state.player.maxHealth += 20;
+                                state.player.health = state.player.maxHealth;
+                            }
+                            state.enemies.splice(state.enemies.indexOf(enemy), 1);
+                        }
+                    }
+                });
+                return !hit && projectile.x > -50 && projectile.x < canvas.width + 50 &&
+                       projectile.y > -50 && projectile.y < canvas.height + 50;
+            });
+
+            // Particle updates
+            state.particles = state.particles.filter(p => {
+                p.x += p.dx;
+                p.y += p.dy;
+                p.lifetime--;
+                return p.lifetime > 0;
+            });
+        }
+
+        // Rendering system
+        function draw() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(state.player.x, state.player.y, state.player.radius, 0, Math.PI*2);
+            ctx.fill();
+
+            // Draw equipped petals
+            state.player.equipped.forEach((petal, i) => {
+                ctx.fillStyle = petal.color;
+                ctx.beginPath();
+                ctx.arc(
+                    state.player.x + Math.cos((i * Math.PI/2)) * 35,
+                    state.player.y + Math.sin((i * Math.PI/2)) * 35,
+                    12, 0, Math.PI*2
+                );
+                ctx.fill();
+            });
+
+            // Draw projectiles
+            state.projectiles.forEach(projectile => {
+                ctx.fillStyle = projectile.color;
+                ctx.beginPath();
+                ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw collectible petals
+            state.petals.forEach(petal => {
+                ctx.fillStyle = PETAL_TYPES[petal.type].color;
+                ctx.beginPath();
+                ctx.arc(petal.x, petal.y, 15, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw enemies
+            state.enemies.forEach(enemy => {
+                ctx.fillStyle = enemy.color;
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, enemy.size/2, 0, Math.PI*2);
+                ctx.fill();
+                
+                // Health bar
+                if(enemy.isBoss) {
+                    ctx.fillStyle = '#000000';
+                    ctx.fillRect(enemy.x - 40, enemy.y - 50, 80, 5);
+                    ctx.fillStyle = '#00FF00';
+                    ctx.fillRect(enemy.x - 40, enemy.y - 50, (enemy.health/500)*80, 5);
+                }
+            });
+
+            // Draw particles
+            state.particles.forEach(p => {
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // UI
+            UI.innerHTML = `
+                Level: ${state.player.level} ❤️ ${Math.round(state.player.health)}/${state.player.maxHealth}<br>
+                XP: ${state.player.xp}/${state.player.level * 100}<br>
+                Petals: ${state.player.petals.length} (C to craft)<br>
+                Equipped: ${state.player.equipped.map(p => p.type).join(', ')}
+            `;
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize game
+        (function init() {
+            // Spawn initial petals
+            for(let i = 0; i < 20; i++) {
+                state.petals.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    type: Object.keys(PETAL_TYPES)[Math.floor(Math.random()*Object.keys(PETAL_TYPES).length)]
+                });
+            }
+            gameLoop();
+        })();
+    </script>
+</body>
+</html>
