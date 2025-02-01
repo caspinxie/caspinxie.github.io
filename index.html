@@ -1,189 +1,798 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>satisfied m28</title>
-
-<link rel="stylesheet" href="styles/monokai-sublime.css">
-<script src="highlight.pack.js"></script>
-<script>hljs.initHighlightingOnLoad();</script>
-<style>
-
-@import url(https://luogu.com.cn/user/1104609);
-
-html {
-	background-color: #adfafd
-}
-
-body{
-	font-family:Open Sans,Arial;
-    color: #555;
-    font-size: 16px;
-    margin: 2em auto;
-    max-width: 1150px;
-    padding: 1em;
-    line-height: 1.4;
-    text-align: justify
-}
-
-a, a:visited {
-	color: #55B;
-	text-decoration: none;
-	font-weight: bold;
-}
-
-a:hover, a:focus {
-	color: #114;
-}
-
-h1, h2, h3 {
-	line-height:1.2;
-}
-
-@media print{
-	body{
-		max-width: none
-	}
-}
-
-pre code {
-	border-radius: 5px !important;
-	padding: 14px !important;
-}
-
-.single-line-code {
-	border-radius: 5px !important;
-	background-color: #23241f;
-	color: #f8f8f2;
-	font-family: monospace;
-	padding: 3px 8px;
-}
-
-</style>
+    <title>Florr.io Clone</title>
+    <style>
+        canvas { border: 2px solid #333; }
+        body { margin: 0; overflow: hidden; background: #87CEEB; }
+        #ui { position: fixed; top: 10px; left: 10px; color: white; font-family: Arial; }
+    </style>
 </head>
 <body>
-<h1>m28n</h1>
-<aside>Magic server deployment, auto scaling and load balancing as a service</aside>
+    <canvas id="gameCanvas"></canvas>
+    <div id="ui"></div>
 
-<h2>Registration</h2>
-<p>m28n is currently not available publicly.</p>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const UI = document.getElementById('ui');
+    
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-<h2>Why not just rent servers from cloud provider X?</h2>
+        // Game state
+        const state = {
+            player: {
+                x: canvas.width/2,
+                y: canvas.height/2,
+                radius: 25,
+                speed: 5,
+                health: 100,
+                maxHealth: 100,
+                petals: [],
+                equipped: [],
+                lastShot: 0,
+                shotCooldown: 200
+            },
+            projectiles: [],
+            petals: [],
+            enemies: [],
+            lastEnemySpawn: 0,
+            enemySpawnCooldown: 2000
+        };
 
-<p>There are two major classes of cloud server providers:</p>
-<ul>
-<li>Those that provide not only servers, but a platform of solutions (AWS, Azure, Google Cloud Platform, etc). They have a built in premium price in their services, and for bandwidth intensive applications it might be prohibitely expensive. The cheapest listed bandwidth price on the providers mentioned is $0.050/GB.</li>
-<li>Smaller providers, that focus on providing servers, and a few more services (Linode, DigitalOcean, Vultr, etc). Their prices are excellent, providing an enormous bang for the buck (bandwidth at $0.005/GB), but at the moment, none of those listed offer autoscaling.</li>
-</ul>
+        // Petal types
+        const PETAL_TYPES = {
+            rose: { color: '#FF69B4', damage: -15, cooldown: 1000 }, // Healing
+            cactus: { color: '#228B22', damage: 20, cooldown: 500 },
+            stinger: { color: '#FFD700', damage: 30, cooldown: 800 }
+        };
 
-<p>We provide an server deployment solution that also takes care of autoscaling your servers and handling updates across your cluster. You provide us with API keys for the cloud providers you want to use (and we support), and we'll take care of managing them for you.</p>
+        // Input handling
+        const keys = {
+            ArrowUp: false, ArrowDown: false,
+            ArrowLeft: false, ArrowRight: false,
+            Space: false
+        };
 
+        // Event listeners
+        window.addEventListener('keydown', (e) => keys[e.key] = true);
+        window.addEventListener('keyup', (e) => keys[e.key] = false);
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
 
-<h2>Usage</h2>
-Create a file called <span class="single-line-code">m28n.json</span> at the root directory of your project:
-<pre><code class="javascript">{
-	// Project identifier
-	"project": "my-project",
-	
-	// Identifier used for locating this project
-	// This also creates a DNS record pointing to all servers at my-project-endpoint.r.n.m28.io
-	// (useful for creating web servers, since the client can't use the sdk to find a server then)
-	"endpoint": "my-project-endpoint",
-		
-	// What ports we want to health check to make sure this server is still up
-	"httpHealthCheck": [ 80 ],
-	
-	// What to run once a server boots up
-	"run": "node project.js",
-	
-	// Which files to send to servers
-	"package": [
-		"project.js",
-	],
-	
-	// Where to create servers
-	"regions": [
-		"linode-fremont",
-		"vultr-seattle"
-	]
-}</code></pre>
+        // Spawn initial petals
+        function spawnPetals() {
+            for(let i = 0; i < 15; i++) {
+                state.petals.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    type: Object.keys(PETAL_TYPES)[Math.floor(Math.random()*3)]
+                });
+            }
+        }
 
-Our example node.js file <span class="single-line-code">project.js</span> has the following content:
+        // Spawn enemies
+        function spawnEnemy() {
+            state.enemies.push({
+                x: Math.random() < 0.5 ? -50 : canvas.width + 50,
+                y: Math.random() * canvas.height,
+                radius: 30,
+                health: 50,
+                speed: 2
+            });
+        }
 
-<pre><code class="javascript">const http = require("http");
+        // Combat system
+        function shoot(petalType) {
+            const now = Date.now();
+            if(now - state.player.lastShot > PETAL_TYPES[petalType].cooldown) {
+                const angle = Math.atan2(
+                    state.player.y - canvas.height/2,
+                    state.player.x - canvas.width/2
+                );
+                
+                state.projectiles.push({
+                    x: state.player.x,
+                    y: state.player.y,
+                    radius: 10,
+                    damage: PETAL_TYPES[petalType].damage,
+                    color: PETAL_TYPES[petalType].color,
+                    dx: -Math.cos(angle) * 8,
+                    dy: -Math.sin(angle) * 8
+                });
+                
+                state.player.lastShot = now;
+            }
+        }
 
-const server = http.createServer((req, res) => {
-	res.statusCode = 200;
-	res.setHeader('Content-Type', 'text/plain');
-	res.end('Hello World\n');
-});
+        // Update loop
+        function update() {
+            // Player movement
+            if(keys.ArrowUp) state.player.y -= state.player.speed;
+            if(keys.ArrowDown) state.player.y += state.player.speed;
+            if(keys.ArrowLeft) state.player.x -= state.player.speed;
+            if(keys.ArrowRight) state.player.x += state.player.speed;
 
-server.listen(80);
-</code></pre>
+            // Shooting
+            if(keys.Space && state.player.equipped.length > 0) {
+                shoot(state.player.equipped[0].type);
+            }
 
-Time to create servers for our project:
+            // Collect petals
+            state.petals = state.petals.filter(petal => {
+                const dx = state.player.x - petal.x;
+                const dy = state.player.y - petal.y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                
+                if(distance < state.player.radius + 15) {
+                    state.player.equipped.push({ 
+                        type: petal.type,
+                        ...PETAL_TYPES[petal.type]
+                    });
+                    return false;
+                }
+                return true;
+            });
 
-<pre><code class="bash"># Install the cli
-npm install -g m28n-cli
+            // Update projectiles
+            state.projectiles.forEach(projectile => {
+                projectile.x += projectile.dx;
+                projectile.y += projectile.dy;
+            });
 
-# Your API token
-export M28N_ACCOUNT_TOKEN=your_account_token
+            // Update enemies
+            const now = Date.now();
+            if(now - state.lastEnemySpawn > state.enemySpawnCooldown) {
+                spawnEnemy();
+                state.lastEnemySpawn = now;
+            }
 
-# Set up your API keys for the regions you want to use
-m28n linode
-m28n vultr
+            state.enemies.forEach(enemy => {
+                // Move towards player
+                const angle = Math.atan2(
+                    state.player.y - enemy.y,
+                    state.player.x - enemy.x
+                );
+                enemy.x += Math.cos(angle) * enemy.speed;
+                enemy.y += Math.sin(angle) * enemy.speed;
 
-# Create the project
-m28n create my-project
+                // Collision with player
+                const dx = state.player.x - enemy.x;
+                const dy = state.player.y - enemy.y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                
+                if(distance < state.player.radius + enemy.radius) {
+                    state.player.health -= 1;
+                }
+            });
 
-# Deploy! This is the only command you need to use afterwards
-m28n deploy
+            // Collision detection
+            state.projectiles = state.projectiles.filter(projectile => {
+                state.enemies.forEach(enemy => {
+                    const dx = projectile.x - enemy.x;
+                    const dy = projectile.y - enemy.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(distance < projectile.radius + enemy.radius) {
+                        enemy.health += projectile.damage;
+                        if(enemy.health <= 0) {
+                            state.enemies.splice(state.enemies.indexOf(enemy), 1);
+                        }
+                    }
+                });
+                return projectile.x > -50 && projectile.x < canvas.width + 50 &&
+                       projectile.y > -50 && projectile.y < canvas.height + 50;
+            });
+        }
 
-# Want to rollback to a previous version?
-# Stop the deploy and point clients back to the old servers
-m28n rollback
-</code></pre>
+        // Render
+        function draw() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-Using the JavaScript SDK to grab a server IP:
-<pre><code class="html">&lt;script src="https://c.n.m28.io/sdk.js"&gt;&lt;/script&gt;
-&lt;script&gt;
-// The SDK is used to provide us load balanced servers in a smarter way
-// than just round-robin dns
+            // Draw player
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(state.player.x, state.player.y, state.player.radius, 0, Math.PI*2);
+            ctx.fill();
 
-// This gives you one server per region, and it's up to you to pick one
-m28n.findServers("my-project-endpoint", function(err, servers){
-	if(err) throw err;
-	console.log(servers); // =>
-	// {
-	//     "linode-fremont": {
-	//         "id": "abc",
-	//         "ipv4": "1.2.3.4",
-	//         "ipv6": null
-	//     },
-	//     
-	//     "vultr-seattle": {
-	//         "id": "xyz",
-	//         "ipv4": "4.3.2.1",
-	//         "ipv6": null
-	//     }
-	// }
-});
+            // Draw equipped petals
+            state.player.equipped.forEach((petal, i) => {
+                ctx.fillStyle = petal.color;
+                ctx.beginPath();
+                ctx.arc(
+                    state.player.x + Math.cos((i * Math.PI/2)) * 35,
+                    state.player.y + Math.sin((i * Math.PI/2)) * 35,
+                    12, 0, Math.PI*2
+                );
+                ctx.fill();
+            });
 
-// If you want to do some transparent latency testing and get servers
-// ordered by latency:
-m28n.findServerPreference("my-project-endpoint", function(err, servers){
-	if(err) throw err;
-	console.log(servers); // =>
-	// [
-	//     {
-	//         "id": "xyz",
-	//         "ipv4": "4.3.2.1",
-	//         "ipv6": null
-	//     },
-	//     
-	//     {
-	//         "id": "abc",
-	//         "ipv4": "1.2.3.4",
-	//         "ipv6": null
-	
+            // Draw projectiles
+            state.projectiles.forEach(projectile => {
+                ctx.fillStyle = projectile.color;
+                ctx.beginPath();
+                ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw petals
+            state.petals.forEach(petal => {
+                ctx.fillStyle = PETAL_TYPES[petal.type].color;
+                ctx.beginPath();
+                ctx.arc(petal.x, petal.y, 15, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw enemies
+            state.enemies.forEach(enemy => {
+                ctx.fillStyle = '#FF4444';
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // UI
+            UI.innerHTML = `
+                Health: ${Math.round(state.player.health)}<br>
+                Petals: ${state.player.equipped.length}<br>
+                ${state.player.equipped.map(p => p.type).join(', ')}
+            `;
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game
+        spawnPetals();
+        gameLoop();
+    </script>
+</body>
+</htmlstate.lastEnemySpawn = now;
+            }
+
+            state.enemies.forEach(enemy => {
+                // Move towards player
+                const angle = Math.atan2(
+                    state.player.y - enemy.y,
+                    state.player.x - enemy.x
+                );
+                enemy.x += Math.cos(angle) * enemy.speed;
+                enemy.y += Math.sin(angle) * enemy.speed;
+
+                // Collision with player
+                const dx = state.player.x - enemy.x;
+                const dy = state.player.y - enemy.y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                
+                if(distance < state.player.radius + enemy.radius) {
+                    state.player.health -= 1;
+                }
+            });
+
+            // Collision detection
+            state.projectiles = state.projectiles.filter(projectile => {
+                state.enemies.forEach(enemy => {
+                    const dx = projectile.x - enemy.x;
+                    const dy = projectile.y - enemy.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(distance < projectile.radius + enemy.radius) {
+                        enemy.health += projectile.damage;
+                        if(enemy.health <= 0) {
+                            state.enemies.splice(state.enemies.indexOf(enemy), 1);
+                        }
+                    }
+                });
+                return projectile.x > -50 && projectile.x < canvas.width + 50 &&
+                       projectile.y > -50 && projectile.y < canvas.height + 50;
+            });
+        }
+
+        // Render
+        function draw() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(state.player.x, state.player.y, state.player.radius, 0, Math.PI*2);
+            ctx.fill();
+
+            // Draw equipped petals
+            state.player.equipped.forEach((petal, i) => {
+                ctx.fillStyle = petal.color;
+                ctx.beginPath();
+                ctx.arc(
+                    state.player.x + Math.cos((i * Math.PI/2)) * 35,
+                    state.player.y + Math.sin((i * Math.PI/2)) * 35,
+                    12, 0, Math.PI*2
+                );
+                ctx.fill();
+            });
+
+            // Draw projectiles
+            state.projectiles.forEach(projectile => {
+                ctx.fillStyle = projectile.color;
+                ctx.beginPath();
+                ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw petals
+            state.petals.forEach(petal => {
+                ctx.fillStyle = PETAL_TYPES[petal.type].color;
+                ctx.beginPath();
+                ctx.arc(petal.x, petal.y, 15, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw enemies
+            state.enemies.forEach(enemy => {
+                ctx.fillStyle = '#FF4444';
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // UI
+            UI.innerHTML = `
+                Health: ${Math.round(state.player.health)}<br>
+                Petals: ${state.player.equipped.length}<br>
+                ${state.player.equipped.map(p => p.type).join(', ')}
+            `;
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game
+        spawnPetals();
+        gameLoop();
+    </script>
+</body>
+</htmlstate.lastEnemySpawn = now;
+            }
+
+            state.enemies.forEach(enemy => {
+                // Move towards player
+                const angle = Math.atan2(
+                    state.player.y - enemy.y,
+                    state.player.x - enemy.x
+                );
+                enemy.x += Math.cos(angle) * enemy.speed;
+                enemy.y += Math.sin(angle) * enemy.speed;
+
+                // Collision with player
+                const dx = state.player.x - enemy.x;
+                const dy = state.player.y - enemy.y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                
+                if(distance < state.player.radius + enemy.radius) {
+                    state.player.health -= 1;
+                }
+            });
+
+            // Collision detection
+            state.projectiles = state.projectiles.filter(projectile => {
+                state.enemies.forEach(enemy => {
+                    const dx = projectile.x - enemy.x;
+                    const dy = projectile.y - enemy.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(distance < projectile.radius + enemy.radius) {
+                        enemy.health += projectile.damage;
+                        if(enemy.health <= 0) {
+                            state.enemies.splice(state.enemies.indexOf(enemy), 1);
+                        }
+                    }
+                });
+                return projectile.x > -50 && projectile.x < canvas.width + 50 &&
+                       projectile.y > -50 && projectile.y < canvas.height + 50;
+            });
+        }
+
+        // Render
+        function draw() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(state.player.x, state.player.y, state.player.radius, 0, Math.PI*2);
+            ctx.fill();
+
+            // Draw equipped petals
+            state.player.equipped.forEach((petal, i) => {
+                ctx.fillStyle = petal.color;
+                ctx.beginPath();
+                ctx.arc(
+                    state.player.x + Math.cos((i * Math.PI/2)) * 35,
+                    state.player.y + Math.sin((i * Math.PI/2)) * 35,
+                    12, 0, Math.PI*2
+                );
+                ctx.fill();
+            });
+
+            // Draw projectiles
+            state.projectiles.forEach(projectile => {
+                ctx.fillStyle = projectile.color;
+                ctx.beginPath();
+                ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw petals
+            state.petals.forEach(petal => {
+                ctx.fillStyle = PETAL_TYPES[petal.type].color;
+                ctx.beginPath();
+                ctx.arc(petal.x, petal.y, 15, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw enemies
+            state.enemies.forEach(enemy => {
+                ctx.fillStyle = '#FF4444';
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // UI
+            UI.innerHTML = `
+                Health: ${Math.round(state.player.health)}<br>
+                Petals: ${state.player.equipped.length}<br>
+                ${state.player.equipped.map(p => p.type).join(', ')}
+            `;
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game
+        spawnPetals();
+        gameLoop();
+    </script>
+</body>
+</htmlstate.lastEnemySpawn = now;
+            }
+
+            state.enemies.forEach(enemy => {
+                // Move towards player
+                const angle = Math.atan2(
+                    state.player.y - enemy.y,
+                    state.player.x - enemy.x
+                );
+                enemy.x += Math.cos(angle) * enemy.speed;
+                enemy.y += Math.sin(angle) * enemy.speed;
+
+                // Collision with player
+                const dx = state.player.x - enemy.x;
+                const dy = state.player.y - enemy.y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                
+                if(distance < state.player.radius + enemy.radius) {
+                    state.player.health -= 1;
+                }
+            });
+
+            // Collision detection
+            state.projectiles = state.projectiles.filter(projectile => {
+                state.enemies.forEach(enemy => {
+                    const dx = projectile.x - enemy.x;
+                    const dy = projectile.y - enemy.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(distance < projectile.radius + enemy.radius) {
+                        enemy.health += projectile.damage;
+                        if(enemy.health <= 0) {
+                            state.enemies.splice(state.enemies.indexOf(enemy), 1);
+                        }
+                    }
+                });
+                return projectile.x > -50 && projectile.x < canvas.width + 50 &&
+                       projectile.y > -50 && projectile.y < canvas.height + 50;
+            });
+        }
+
+        // Render
+        function draw() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(state.player.x, state.player.y, state.player.radius, 0, Math.PI*2);
+            ctx.fill();
+
+            // Draw equipped petals
+            state.player.equipped.forEach((petal, i) => {
+                ctx.fillStyle = petal.color;
+                ctx.beginPath();
+                ctx.arc(
+                    state.player.x + Math.cos((i * Math.PI/2)) * 35,
+                    state.player.y + Math.sin((i * Math.PI/2)) * 35,
+                    12, 0, Math.PI*2
+                );
+                ctx.fill();
+            });
+
+            // Draw projectiles
+            state.projectiles.forEach(projectile => {
+                ctx.fillStyle = projectile.color;
+                ctx.beginPath();
+                ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw petals
+            state.petals.forEach(petal => {
+                ctx.fillStyle = PETAL_TYPES[petal.type].color;
+                ctx.beginPath();
+                ctx.arc(petal.x, petal.y, 15, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw enemies
+            state.enemies.forEach(enemy => {
+                ctx.fillStyle = '#FF4444';
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // UI
+            UI.innerHTML = `
+                Health: ${Math.round(state.player.health)}<br>
+                Petals: ${state.player.equipped.length}<br>
+                ${state.player.equipped.map(p => p.type).join(', ')}
+            `;
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game
+        spawnPetals();
+        gameLoop();
+    </script>
+</body>
+</htmlstate.lastEnemySpawn = now;
+            }
+
+            state.enemies.forEach(enemy => {
+                // Move towards player
+                const angle = Math.atan2(
+                    state.player.y - enemy.y,
+                    state.player.x - enemy.x
+                );
+                enemy.x += Math.cos(angle) * enemy.speed;
+                enemy.y += Math.sin(angle) * enemy.speed;
+
+                // Collision with player
+                const dx = state.player.x - enemy.x;
+                const dy = state.player.y - enemy.y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                
+                if(distance < state.player.radius + enemy.radius) {
+                    state.player.health -= 1;
+                }
+            });
+
+            // Collision detection
+            state.projectiles = state.projectiles.filter(projectile => {
+                state.enemies.forEach(enemy => {
+                    const dx = projectile.x - enemy.x;
+                    const dy = projectile.y - enemy.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(distance < projectile.radius + enemy.radius) {
+                        enemy.health += projectile.damage;
+                        if(enemy.health <= 0) {
+                            state.enemies.splice(state.enemies.indexOf(enemy), 1);
+                        }
+                    }
+                });
+                return projectile.x > -50 && projectile.x < canvas.width + 50 &&
+                       projectile.y > -50 && projectile.y < canvas.height + 50;
+            });
+        }
+
+        // Render
+        function draw() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(state.player.x, state.player.y, state.player.radius, 0, Math.PI*2);
+            ctx.fill();
+
+            // Draw equipped petals
+            state.player.equipped.forEach((petal, i) => {
+                ctx.fillStyle = petal.color;
+                ctx.beginPath();
+                ctx.arc(
+                    state.player.x + Math.cos((i * Math.PI/2)) * 35,
+                    state.player.y + Math.sin((i * Math.PI/2)) * 35,
+                    12, 0, Math.PI*2
+                );
+                ctx.fill();
+            });
+
+            // Draw projectiles
+            state.projectiles.forEach(projectile => {
+                ctx.fillStyle = projectile.color;
+                ctx.beginPath();
+                ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw petals
+            state.petals.forEach(petal => {
+                ctx.fillStyle = PETAL_TYPES[petal.type].color;
+                ctx.beginPath();
+                ctx.arc(petal.x, petal.y, 15, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw enemies
+            state.enemies.forEach(enemy => {
+                ctx.fillStyle = '#FF4444';
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // UI
+            UI.innerHTML = `
+                Health: ${Math.round(state.player.health)}<br>
+                Petals: ${state.player.equipped.length}<br>
+                ${state.player.equipped.map(p => p.type).join(', ')}
+            `;
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game
+        spawnPetals();
+        gameLoop();
+    </script>
+</body>
+</htmlstate.lastEnemySpawn = now;
+            }
+
+            state.enemies.forEach(enemy => {
+                // Move towards player
+                const angle = Math.atan2(
+                    state.player.y - enemy.y,
+                    state.player.x - enemy.x
+                );
+                enemy.x += Math.cos(angle) * enemy.speed;
+                enemy.y += Math.sin(angle) * enemy.speed;
+
+                // Collision with player
+                const dx = state.player.x - enemy.x;
+                const dy = state.player.y - enemy.y;
+                const distance = Math.sqrt(dx*dx + dy*dy);
+                
+                if(distance < state.player.radius + enemy.radius) {
+                    state.player.health -= 1;
+                }
+            });
+
+            // Collision detection
+            state.projectiles = state.projectiles.filter(projectile => {
+                state.enemies.forEach(enemy => {
+                    const dx = projectile.x - enemy.x;
+                    const dy = projectile.y - enemy.y;
+                    const distance = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(distance < projectile.radius + enemy.radius) {
+                        enemy.health += projectile.damage;
+                        if(enemy.health <= 0) {
+                            state.enemies.splice(state.enemies.indexOf(enemy), 1);
+                        }
+                    }
+                });
+                return projectile.x > -50 && projectile.x < canvas.width + 50 &&
+                       projectile.y > -50 && projectile.y < canvas.height + 50;
+            });
+        }
+
+        // Render
+        function draw() {
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw player
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(state.player.x, state.player.y, state.player.radius, 0, Math.PI*2);
+            ctx.fill();
+
+            // Draw equipped petals
+            state.player.equipped.forEach((petal, i) => {
+                ctx.fillStyle = petal.color;
+                ctx.beginPath();
+                ctx.arc(
+                    state.player.x + Math.cos((i * Math.PI/2)) * 35,
+                    state.player.y + Math.sin((i * Math.PI/2)) * 35,
+                    12, 0, Math.PI*2
+                );
+                ctx.fill();
+            });
+
+            // Draw projectiles
+            state.projectiles.forEach(projectile => {
+                ctx.fillStyle = projectile.color;
+                ctx.beginPath();
+                ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw petals
+            state.petals.forEach(petal => {
+                ctx.fillStyle = PETAL_TYPES[petal.type].color;
+                ctx.beginPath();
+                ctx.arc(petal.x, petal.y, 15, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // Draw enemies
+            state.enemies.forEach(enemy => {
+                ctx.fillStyle = '#FF4444';
+                ctx.beginPath();
+                ctx.arc(enemy.x, enemy.y, enemy.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+
+            // UI
+            UI.innerHTML = `
+                Health: ${Math.round(state.player.health)}<br>
+                Petals: ${state.player.equipped.length}<br>
+                ${state.player.equipped.map(p => p.type).join(', ')}
+            `;
+        }
+
+        // Game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start game
+        spawnPetals();
+        gameLoop();
+    </script>
+</body>
+</html
