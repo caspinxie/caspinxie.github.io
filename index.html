@@ -257,36 +257,29 @@
                     
                     if(distance < projectile.radius + (enemy.size/2)) {
                         enemy.health -= projectile.damage;
-                        createstate.player.equipped.forEach(petal => {
-                if(now - state.player.lastShot > petal.cooldown) {
-                    const angle = Math.atan2(
-                        state.player.y - canvas.height/2,
-                        state.player.x - canvas.width/2
-                    );
-                    
-                    const projectile = {
-                        x: state.player.x,
-                        y: state.player.y,
-                        radius: 10,
-                        damage: petal.damage,
-                        color: petal.color,
-                        dx: -Math.cos(angle) * 8,
-                        dy: -Math.sin(angle) * 8,
-                        type: petal.type
-                    };
+                        createParticles(enemy.x, enemy.y, enemy.color);
+                        hit = true;
+                        sounds.hit.play().catch(() => {});
+                        
+                        if(projectile.type === 'web') {
+                            enemy.speed *= 0.5;
+                            setTimeout(() => enemy.speed = ENEMY_TYPES[enemy.type]?.speed || 2, 2000);
+                        }
 
-                    if(petal.type === 'web') {
-                        projectile.radius = 15;
-                        projectile.dx *= 0.5;
-                        projectile.dy *= 0.5;
+                        if(enemy.health <= 0) {
+                            state.player.xp += enemy.isBoss ? 100 : 10;
+                            if(state.player.xp >= state.player.level * 100) {
+                                state.player.level++;
+                                state.player.maxHealth += 20;
+                                state.player.health = state.player.maxHealth;
+                            }
+                            state.enemies.splice(state.enemies.indexOf(enemy), 1);
+                        }
                     }
-
-                    state.projectiles.push(projectile);
-                    state.player.lastShot = now;
-                    sounds.shoot.play().catch(() => {});
-                }
+                });
+                return !hit && projectile.x > -50 && projectile.x < canvas.width + 50 &&
+                       projectile.y > -50 && projectile.y < canvas.height + 50;
             });
-        }
 
         // Update loop
         function update() {
