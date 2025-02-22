@@ -1,14 +1,40 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Florr.io Clone</title>
     <style>
-        canvas { border: 2px solid #333; }
-        body { margin: 0; overflow: hidden; background: #87CEEB; }
-        #ui { position: fixed; top: 10px; left: 10px; color: white; font-family: Arial; text-shadow: 2px 2px 2px #000; }
-        #crafting { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 10px; border-radius: 10px; }
+        canvas {
+            border: 2px solid #333;
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #87CEEB;
+        }
+
+        #ui {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: Arial;
+            text-shadow: 2px 2px 2px #000;
+        }
+
+        #crafting {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 10px;
+        }
     </style>
 </head>
+
 <body>
     <canvas id="gameCanvas"></canvas>
     <div id="ui"></div>
@@ -21,7 +47,7 @@
         const ctx = canvas.getContext('2d');
         const UI = document.getElementById('ui');
         const CRAFTING_UI = document.getElementById('crafting');
-        
+
         // Canvas setup
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -29,8 +55,8 @@
         // Game state
         const state = {
             player: {
-                x: canvas.width/2,
-                y: canvas.height/2,
+                x: canvas.width / 2,
+                y: canvas.height / 2,
                 radius: 25,
                 speed: 5,
                 health: 100,
@@ -55,7 +81,7 @@
 
         // Petal types (expanded)
         const PETAL_TYPES = {
-            rose: { color: '#FF69B4', damage: -15, cooldown: 1000, tier: 1 },
+            rose: { color: '#FF69B4', damage: 15, cooldown: 1000, tier: 1 },
             cactus: { color: '#228B22', damage: 20, cooldown: 500, tier: 1 },
             stinger: { color: '#FFD700', damage: 30, cooldown: 800, tier: 2 },
             salt: { color: '#FFFFFF', damage: 40, cooldown: 400, tier: 3 },
@@ -77,9 +103,12 @@
 
         // Input handling
         const keys = {
-            ArrowUp: false, ArrowDown: false,
-            ArrowLeft: false, ArrowRight: false,
-            Space: false, KeyC: false
+            ArrowUp: false,
+            ArrowDown: false,
+            ArrowLeft: false,
+            ArrowRight: false,
+            Space: false,
+            KeyC: false
         };
 
         // Event listeners
@@ -92,9 +121,10 @@
 
         // Particle system
         function createParticles(x, y, color) {
-            for(let i = 0; i < 10; i++) {
+            for (let i = 0; i < 10; i++) {
                 state.particles.push({
-                    x, y,
+                    x,
+                    y,
                     dx: (Math.random() - 0.5) * 5,
                     dy: (Math.random() - 0.5) * 5,
                     radius: Math.random() * 3 + 2,
@@ -108,19 +138,19 @@
         function combinePetals() {
             const petalsByType = {};
             state.player.petals.forEach(petal => {
-                if(!petalsByType[petal.type]) petalsByType[petal.type] = [];
+                if (!petalsByType[petal.type]) petalsByType[petal.type] = [];
                 petalsByType[petal.type].push(petal);
             });
 
-            for(const type in petalsByType) {
-                if(petalsByType[type].length >= 2) {
-                    const upgradedType = Object.keys(PETAL_TYPES).find(t => 
+            for (const type in petalsByType) {
+                if (petalsByType[type].length >= 2) {
+                    const upgradedType = Object.keys(PETAL_TYPES).find(t =>
                         PETAL_TYPES[t].tier === PETAL_TYPES[type].tier + 1
                     );
-                    if(upgradedType) {
-                        state.player.petals = state.player.petals.filter(p => p !== petalsByType[type][0]);
-                        state.player.petals = state.player.petals.filter(p => p !== petalsByType[type][1]);
-                        state.player.petals.push({ type: upgradedType, ...PETAL_TYPES[upgradedType] });
+                    if (upgradedType) {
+                        state.player.petals = state.player.petals.filter(p => p!== petalsByType[type][0]);
+                        state.player.petals = state.player.petals.filter(p => p!== petalsByType[type][1]);
+                        state.player.petals.push({ type: upgradedType,...PETAL_TYPES[upgradedType] });
                         createParticles(state.player.x, state.player.y, '#00FF00');
                     }
                 }
@@ -131,12 +161,12 @@
         function shoot() {
             const now = Date.now();
             state.player.equipped.forEach(petal => {
-                if(now - state.player.lastShot > petal.cooldown) {
+                if (now - state.player.lastShot > petal.cooldown) {
                     const angle = Math.atan2(
-                        state.player.y - canvas.height/2,
-                        state.player.x - canvas.width/2
+                        state.player.y - canvas.height / 2,
+                        state.player.x - canvas.width / 2
                     );
-                    
+
                     const projectile = {
                         x: state.player.x,
                         y: state.player.y,
@@ -148,7 +178,7 @@
                         type: petal.type
                     };
 
-                    if(petal.type === 'web') {
+                    if (petal.type === 'web') {
                         projectile.radius = 15;
                         projectile.dx *= 0.5;
                         projectile.dy *= 0.5;
@@ -164,60 +194,53 @@
         // Update loop
         function update() {
             // Player movement
-            if(keys.ArrowUp) state.player.y -= state.player.speed;
-            if(keys.ArrowDown) state.player.y += state.player.speed;
-            if(keys.ArrowLeft) state.player.x -= state.player.speed;
-            if(keys.ArrowRight) state.player.x += state.player.speed;
+            if (keys.ArrowUp) state.player.y -= state.player.speed;
+            if (keys.ArrowDown) state.player.y += state.player.speed;
+            if (keys.ArrowLeft) state.player.x -= state.player.speed;
+            if (keys.ArrowRight) state.player.x += state.player.speed;
 
             // Health regeneration
-            if(Date.now() - state.player.lastHeal > state.player.healInterval) {
+            if (Date.now() - state.player.lastHeal > state.player.healInterval) {
                 state.player.health = Math.min(state.player.maxHealth, state.player.health + 5);
                 state.player.lastHeal = Date.now();
             }
 
             // Shooting
-            if(keys.Space) shoot();
+            if (keys.Space) shoot();
 
             // Crafting UI toggle
-            CRAFTING_UI.style.display = keys.KeyC ? 'block' : 'none';
+            CRAFTING_UI.style.display = keys.KeyC? 'block' : 'none';
 
             // Petal collection
             state.petals = state.petals.filter(petal => {
                 const dx = state.player.x - petal.x;
                 const dy = state.player.y - petal.y;
-                const distance = Math.sqrt(dx*dx + dy*dy);
-                
-                if(distance < state.player.radius + 15) {
-                    state.player.petals.push({ 
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < state.player.radius + 15) {
+                    state.player.petals.push({
                         type: petal.type,
                         ...PETAL_TYPES[petal.type]
                     });
-                    createParticles(petal.x, petal.y, PETAL_TYPES[petal.type].color);
                     return false;
                 }
                 return true;
             });
 
-            // Update entities
-            state.projectiles.forEach(projectile => {
-                projectile.x += projectile.dx;
-                projectile.y += projectile.dy;
-            });
-
             // Enemy spawning system
             const now = Date.now();
-            if(now - state.lastEnemySpawn > state.enemySpawnCooldown) {
-                const type = Math.random() < 0.1 ? 'tank' : Math.random() < 0.3 ? 'fast' : 'basic';
+            if (now - state.lastEnemySpawn > state.enemySpawnCooldown) {
+                const type = Math.random() < 0.1? 'tank' : Math.random() < 0.3? 'fast' : 'basic';
                 state.enemies.push({
-                    ...ENEMY_TYPES[type],
-                    x: Math.random() < 0.5 ? -50 : canvas.width + 50,
+                   ...ENEMY_TYPES[type],
+                    x: Math.random() < 0.5? -50 : canvas.width + 50,
                     y: Math.random() * canvas.height
                 });
                 state.lastEnemySpawn = now;
             }
 
             // Boss spawning
-            if(now - state.lastBossSpawn > state.bossSpawnInterval) {
+            if (now - state.lastBossSpawn > state.bossSpawnInterval) {
                 state.enemies.push({
                     color: '#FF0000',
                     health: 500,
@@ -240,65 +263,62 @@
                 // Collision with player
                 const dx = state.player.x - enemy.x;
                 const dy = state.player.y - enemy.y;
-                const distance = Math.sqrt(dx*dx + dy*dy);
-                
-                if(distance < state.player.radius + (enemy.size/2)) {
-                    state.player.health -= enemy.isBoss ? 5 : 1;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < state.player.radius + (enemy.size / 2)) {
+                    state.player.health -= enemy.isBoss? 5 : 1;
                 }
             });
 
-            // Combat system
-            state.projectiles = state.projectiles.filter(projectile => {
-                let hit = false;
+            // Projectile movement and collision
+            state.projectiles.forEach(projectile => {
+                projectile.x += projectile.dx;
+                projectile.y += projectile.dy;
+
                 state.enemies.forEach(enemy => {
                     const dx = projectile.x - enemy.x;
                     const dy = projectile.y - enemy.y;
-                    const distance = Math.sqrt(dx*dx + dy*dy);
-                    
-                    if(distance < projectile.radius + (enemy.size/2)) {
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < projectile.radius + (enemy.size / 2)) {
                         enemy.health -= projectile.damage;
                         createParticles(enemy.x, enemy.y, enemy.color);
-                        hit = true;
                         sounds.hit.play().catch(() => {});
-                        
-                        if(projectile.type === 'web') {
-                            enemy.speed *= 0.5;
-                            setTimeout(() => enemy.speed = ENEMY_TYPES[enemy.type]?.speed || 2, 2000);
-                        }
 
-                        if(enemy.health <= 0) {
-                            state.player.xp += enemy.isBoss ? 100 : 10;
-                            if(state.player.xp >= state.player.level * 100) {
-                                state.player.level++;
-                                state.player.maxHealth += 20;
-                                state.player.health = state.player.maxHealth;
-                            }
-                            state.enemies.splice(state.enemies.indexOf(enemy), 1);
+                        if (projectile.type === 'web') {
+                            enemy.speed *= 0.5;
                         }
                     }
                 });
-                return !hit && projectile.x > -50 && projectile.x < canvas.width + 50 &&
-                       projectile.y > -50 && projectile.y < canvas.height + 50;
             });
 
-            // Particle updates
-            state.particles = state.particles.filter(p => {
+            // Particle update
+            state.particles.forEach((p, index) => {
                 p.x += p.dx;
                 p.y += p.dy;
                 p.lifetime--;
-                return p.lifetime > 0;
+                if (p.lifetime <= 0) {
+                    state.particles.splice(index, 1);
+                }
+            });
+
+            // Remove dead enemies
+            state.enemies = state.enemies.filter(enemy => enemy.health > 0);
+
+            // Remove out-of-bounds projectiles
+            state.projectiles = state.projectiles.filter(projectile => {
+                return projectile.x > 0 && projectile.x < canvas.width && projectile.y > 0 && projectile.y < canvas.height;
             });
         }
 
-        // Rendering system
+        // Draw function
         function draw() {
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw player
-            ctx.fillStyle = '#FFFFFF';
+            ctx.fillStyle = '#00FF00';
             ctx.beginPath();
-            ctx.arc(state.player.x, state.player.y, state.player.radius, 0, Math.PI*2);
+            ctx.arc(state.player.x, state.player.y, state.player.radius, 0, Math.PI * 2);
             ctx.fill();
 
             // Draw equipped petals
@@ -306,9 +326,9 @@
                 ctx.fillStyle = petal.color;
                 ctx.beginPath();
                 ctx.arc(
-                    state.player.x + Math.cos((i * Math.PI/2)) * 35,
-                    state.player.y + Math.sin((i * Math.PI/2)) * 35,
-                    12, 0, Math.PI*2
+                    state.player.x + Math.cos((i * Math.PI / 2)) * 35,
+                    state.player.y + Math.sin((i * Math.PI / 2)) * 35,
+                    12, 0, Math.PI * 2
                 );
                 ctx.fill();
             });
@@ -317,7 +337,7 @@
             state.projectiles.forEach(projectile => {
                 ctx.fillStyle = projectile.color;
                 ctx.beginPath();
-                ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI*2);
+                ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI * 2);
                 ctx.fill();
             });
 
@@ -325,7 +345,7 @@
             state.petals.forEach(petal => {
                 ctx.fillStyle = PETAL_TYPES[petal.type].color;
                 ctx.beginPath();
-                ctx.arc(petal.x, petal.y, 15, 0, Math.PI*2);
+                ctx.arc(petal.x, petal.y, 15, 0, Math.PI * 2);
                 ctx.fill();
             });
 
@@ -333,15 +353,15 @@
             state.enemies.forEach(enemy => {
                 ctx.fillStyle = enemy.color;
                 ctx.beginPath();
-                ctx.arc(enemy.x, enemy.y, enemy.size/2, 0, Math.PI*2);
+                ctx.arc(enemy.x, enemy.y, enemy.size / 2, 0, Math.PI * 2);
                 ctx.fill();
-                
+
                 // Health bar
-                if(enemy.isBoss) {
+                if (enemy.isBoss) {
                     ctx.fillStyle = '#000000';
                     ctx.fillRect(enemy.x - 40, enemy.y - 50, 80, 5);
                     ctx.fillStyle = '#00FF00';
-                    ctx.fillRect(enemy.x - 40, enemy.y - 50, (enemy.health/500)*80, 5);
+                    ctx.fillRect(enemy.x - 40, enemy.y - 50, (enemy.health / 500) * 80, 5);
                 }
             });
 
@@ -349,7 +369,7 @@
             state.particles.forEach(p => {
                 ctx.fillStyle = p.color;
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
                 ctx.fill();
             });
 
@@ -372,15 +392,16 @@
         // Initialize game
         (function init() {
             // Spawn initial petals
-            for(let i = 0; i < 20; i++) {
+            for (let i = 0; i < 20; i++) {
                 state.petals.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    type: Object.keys(PETAL_TYPES)[Math.floor(Math.random()*Object.keys(PETAL_TYPES).length)]
+                    type: Object.keys(PETAL_TYPES)[Math.floor(Math.random() * Object.keys(PETAL_TYPES).length)]
                 });
             }
             gameLoop();
         })();
     </script>
 </body>
+
 </html>
