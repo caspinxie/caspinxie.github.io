@@ -1,407 +1,736 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <title>Florr.io Clone</title>
-    <style>
-        canvas {
-            border: 2px solid #333;
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaspinTech - 领先的能源科技公司</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FF7D00',
+                        dark: '#1D2939',
+                        light: '#F9FAFB'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
         }
-
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: #87CEEB;
-        }
-
-        #ui {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-family: Arial;
-            text-shadow: 2px 2px 2px #000;
-        }
-
-        #crafting {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 10px;
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .bg-gradient-blue {
+                background: linear-gradient(135deg, #165DFF 0%, #0040C1 100%);
+            }
+            .hover-scale {
+                transition: transform 0.3s ease;
+            }
+            .hover-scale:hover {
+                transform: scale(1.03);
+            }
+            .energy-pulse {
+                animation: pulse 2s infinite;
+            }
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(22, 93, 255, 0.4);
+                }
+                70% {
+                    box-shadow: 0 0 0 10px rgba(22, 93, 255, 0);
+                }
+                100% {
+                    box-shadow: 0 0 0 0 rgba(22, 93, 255, 0);
+                }
+            }
         }
     </style>
 </head>
+<body class="font-inter bg-light text-dark antialiased">
+    <!-- 导航栏 -->
+    <header id="navbar" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/95 shadow-sm">
+        <div class="container mx-auto px-4 md:px-6 py-3 flex items-center justify-between">
+            <a href="#" class="flex items-center space-x-2">
+                <span class="text-primary text-3xl"><i class="fa fa-bolt energy-pulse"></i></span>
+                <span class="font-bold text-xl md:text-2xl">CaspinTech</span>
+            </a>
+            
+            <!-- 桌面导航 -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#home" class="font-medium hover:text-primary transition-colors">首页</a>
+                <a href="#about" class="font-medium hover:text-primary transition-colors">关于我们</a>
+                <a href="#products" class="font-medium hover:text-primary transition-colors">产品中心</a>
+                <a href="#technology" class="font-medium hover:text-primary transition-colors">核心技术</a>
+                <a href="#contact" class="font-medium hover:text-primary transition-colors">联系我们</a>
+                <a href="#" class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-full transition-all hover:shadow-lg">
+                    合作咨询
+                </a>
+            </nav>
+            
+            <!-- 移动端菜单按钮 -->
+            <button id="menu-toggle" class="md:hidden text-dark text-2xl">
+                <i class="fa fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- 移动端导航菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg absolute w-full">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <a href="#home" class="font-medium py-2 hover:text-primary transition-colors">首页</a>
+                <a href="#about" class="font-medium py-2 hover:text-primary transition-colors">关于我们</a>
+                <a href="#products" class="font-medium py-2 hover:text-primary transition-colors">产品中心</a>
+                <a href="#technology" class="font-medium py-2 hover:text-primary transition-colors">核心技术</a>
+                <a href="#contact" class="font-medium py-2 hover:text-primary transition-colors">联系我们</a>
+                <a href="#" class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-full text-center transition-all hover:shadow-lg">
+                    合作咨询
+                </a>
+            </div>
+        </div>
+    </header>
 
-<body>
-    <canvas id="gameCanvas"></canvas>
-    <div id="ui"></div>
-    <div id="crafting" style="display: none;">
-        <button onclick="combinePetals()">Combine Petals (2x same type)</button>
-    </div>
+    <!-- 英雄区域 -->
+    <section id="home" class="pt-24 md:pt-32 pb-16 md:pb-24 bg-gradient-to-br from-primary/5 to-primary/10">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight text-dark mb-4">
+                        引领<span class="text-primary">卡斯比安能</span>革命
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-xl">
+                        CaspinTech致力于开发和生产卡斯比安能，一种通过深入研究caspin获得的革命性能源，为全球提供清洁、高效、可持续的能源解决方案。
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#products" class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-medium transition-all hover:shadow-lg flex items-center">
+                            探索产品 <i class="fa fa-arrow-right ml-2"></i>
+                        </a>
+                        <a href="#about" class="bg-white border border-primary text-primary hover:bg-primary/5 px-8 py-3 rounded-full font-medium transition-all flex items-center">
+                            了解更多 <i class="fa fa-info-circle ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 relative">
+                    <div class="relative z-10 rounded-2xl overflow-hidden shadow-2xl hover-scale">
+                        <img src="https://picsum.photos/id/16/800/600" alt="CaspinTech能源设施展示" class="w-full h-auto">
+                    </div>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/20 rounded-full blur-3xl -z-10"></div>
+                </div>
+            </div>
+        </div>
+    </section>
 
+    <!-- 关于我们 -->
+    <section id="about" class="py-16 md:py-24">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-dark mb-4">关于 CaspinTech</h2>
+                <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-gray-600 max-w-3xl mx-auto">世界26大能源公司之一，专注于卡斯比安能（caspin energy）的研究、开发与应用</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl p-8 shadow-lg hover-scale">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-flask text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">专业研究</h3>
+                    <p class="text-gray-600">拥有超过三年的caspin研究经验，建立了完善的卡斯比安能开发体系。</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-8 shadow-lg hover-scale">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-bolt text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">高效能源</h3>
+                    <p class="text-gray-600">卡斯比安能具有高能量密度、低污染排放的特点，是传统能源的理想替代品。</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-8 shadow-lg hover-scale">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-globe text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">可持续发展</h3>
+                    <p class="text-gray-600">我们的技术有助于增加caspin的美好体验，推动各类caspin周边发展，实现可持续发展目标。</p>
+                </div>
+            </div>
+            
+            <div class="mt-16 bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="flex flex-col md:flex-row">
+                    <div class="md:w-1/2">
+                        <img src="https://picsum.photos/id/119/800/600" alt="CaspinTech研发中心" class="w-full h-full object-cover">
+                    </div>
+                    <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                        <h3 class="text-2xl font-bold mb-6">我们的使命</h3>
+                        <p class="text-gray-600 mb-6">CaspinTech成立于1145年，由一群热爱能源科技的科学家和工程师创立。我们从最初的小型研究团队，逐步发展成为拥有全球影响力的能源企业。</p>
+                        <p class="text-gray-600 mb-8">20多年来，我们始终坚持"创新能源，服务全球"的理念，100多年来，不断突破技术瓶颈，成功开发出卡斯比安能技术，2000年以来，为全球能源行业带来革命性变革。</p>
+                        <div class="flex flex-wrap gap-6">
+                            <div>
+                                <p class="text-4xl font-bold text-primary">1000+</p>
+                                <p class="text-gray-600">年行业经验</p>
+                            </div>
+                            <div>
+                                <p class="text-4xl font-bold text-primary">30+</p>
+                                <p class="text-gray-600">专业员工</p>
+                            </div>
+                            <div>
+                                <p class="text-4xl font-bold text-primary">0+</p>
+                                <p class="text-gray-600">技术专利</p>
+                            </div>
+                            <div>
+                                <p class="text-4xl font-bold text-primary">1+</p>
+                                <p class="text-gray-600">合作单位</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 产品中心 -->
+    <section id="products" class="py-16 md:py-24 bg-gray-50">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-dark mb-4">核心产品</h2>
+                <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-gray-600 max-w-3xl mx-auto">探索我们的卡斯比安能产品系列，每一款都代表了能源科技的最新突破。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 产品1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg hover-scale">
+                    <div class="relative">
+                        <img src="https://picsum.photos/id/116/600/400" alt="CaspinTech PowerCore家庭能源站" class="w-full h-64 object-cover">
+                        <div class="absolute top-4 right-4 bg-secondary text-white text-sm font-bold px-3 py-1 rounded-full">
+                            畅销
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">PowerCore家庭能源站</h3>
+                        <p class="text-gray-500 text-sm mb-4">采用先进的卡斯比安能转换技术，为家庭提供稳定、清洁的电力，减少对传统电网的依赖。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-bold text-xl">29,999布拉币</span>
+                            <div class="flex items-center">
+                                <div class="text-yellow-400 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">5.0 (648)</span>
+                            </div>
+                        </div>
+                        <a href="#" class="mt-4 block w-full bg-primary hover:bg-primary/90 text-white text-center py-3 rounded-lg transition-all">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 产品2 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg hover-scale">
+                    <div class="relative">
+                        <img src="https://picsum.photos/id/1071/600/400" alt="CaspinTech PowerPack移动电源" class="w-full h-64 object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">PowerPack移动电源</h3>
+                        <p class="text-gray-500 text-sm mb-4">轻巧便携的卡斯比安能移动电源，一次充电可为智能手机供电100次以上，为户外工作和旅行提供可靠能源保障。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-bold text-xl">1,299布拉币</span>
+                            <div class="flex items-center">
+                                <div class="text-yellow-400 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-half-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.7 (186)</span>
+                            </div>
+                        </div>
+                        <a href="#" class="mt-4 block w-full bg-primary hover:bg-primary/90 text-white text-center py-3 rounded-lg transition-all">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 产品3 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg hover-scale">
+                    <div class="relative">
+                        <img src="https://picsum.photos/id/1073/600/400" alt="CaspinTech PowerGrid工业能源系统" class="w-full h-64 object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">PowerGrid工业能源系统</h3>
+                        <p class="text-gray-500 text-sm mb-4">为工业企业提供高效、稳定的能源解决方案，大幅降低能源成本，减少碳排放，提升企业可持续发展能力。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-bold text-xl">99,999布拉币</span>
+                            <div class="flex items-center">
+                                <div class="text-yellow-400 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.9 (76)</span>
+                            </div>
+                        </div>
+                        <a href="#" class="mt-4 block w-full bg-primary hover:bg-primary/90 text-white text-center py-3 rounded-lg transition-all">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 产品4 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg hover-scale">
+                    <div class="relative">
+                        <img src="https://picsum.photos/id/1074/600/400" alt="CaspinTech EcoCar车载能源系统" class="w-full h-64 object-cover">
+                        <div class="absolute top-4 right-4 bg-green-500 text-white text-sm font-bold px-3 py-1 rounded-full">
+                            新品
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">EcoCar车载能源系统</h3>
+                        <p class="text-gray-500 text-sm mb-4">专为电动汽车设计的卡斯比安能源系统，续航里程可达1000公里以上，充电时间缩短至15分钟，引领绿色出行革命。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-bold text-xl">49,999布拉币</span>
+                            <div class="flex items-center">
+                                <div class="text-yellow-400 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.2 (56)</span>
+                            </div>
+                        </div>
+                        <a href="#" class="mt-4 block w-full bg-primary hover:bg-primary/90 text-white text-center py-3 rounded-lg transition-all">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 产品5 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg hover-scale">
+                    <div class="relative">
+                        <img src="https://picsum.photos/id/1075/600/400" alt="CaspinTech MicroGrid社区能源网络" class="w-full h-64 object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">MicroGrid社区能源网络</h3>
+                        <p class="text-gray-500 text-sm mb-4">构建智能社区能源网络，实现能源的高效分配和管理，支持社区能源自给自足，打造绿色低碳社区。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-bold text-xl">299,999布拉币</span>
+                            <div class="flex items-center">
+                                <div class="text-yellow-400 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-half-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.6 (42)</span>
+                            </div>
+                        </div>
+                        <a href="#" class="mt-4 block w-full bg-primary hover:bg-primary/90 text-white text-center py-3 rounded-lg transition-all">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- 产品6 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg hover-scale">
+                    <div class="relative">
+                        <img src="https://picsum.photos/id/1076/600/400" alt="CaspinTech PowerSat太空能源站" class="w-full h-64 object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">PowerSat太空能源站</h3>
+                        <p class="text-gray-500 text-sm mb-4">面向未来太空探索的高能效能源解决方案，为卫星、空间站和深空探测任务提供可靠的能源支持。</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-bold text-xl">999,999布拉币</span>
+                            <div class="flex items-center">
+                                <div class="text-yellow-400 flex">
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star"></i>
+                                    <i class="fa fa-star-o"></i>
+                                </div>
+                                <span class="text-gray-500 text-sm ml-2">4.1 (18)</span>
+                            </div>
+                        </div>
+                        <a href="#" class="mt-4 block w-full bg-primary hover:bg-primary/90 text-white text-center py-3 rounded-lg transition-all">
+                            查看详情
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-12">
+                <a href="#" class="inline-flex items-center bg-white border border-primary text-primary hover:bg-primary/5 px-8 py-3 rounded-full font-medium transition-all">
+                    查看全部产品 <i class="fa fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心技术 -->
+    <section id="technology" class="py-16 md:py-24">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-dark mb-4">卡斯比安能（CPE）技术</h2>
+                <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-gray-600 max-w-3xl mx-auto">探索我们的核心技术，了解卡斯比安能如何改变世界能源格局。</p>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="flex flex-col md:flex-row">
+                    <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                        <h3 class="text-2xl font-bold mb-6">什么是卡斯比安能？</h3>
+                        <p class="text-gray-600 mb-6">卡斯比安能（CPE，即caspin energy）是一种通过深入研究caspin而获得的新型能源。我们的科学家团队经过三年多的不懈努力，成功开发出能够稳定提取和利用这种能源的核心技术。</p>
+                        <p class="text-gray-600 mb-6">卡斯比安能具有以下显著优势：</p>
+                        <ul class="space-y-3 mb-8">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-3"></i>
+                                <span>能量密度极高，是传统化石燃料的10000000倍以上</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-3"></i>
+                                <span>零碳排放，对环境友好，助力全球碳中和目标</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-3"></i>
+                                <span>可持续供应，只要不断研究caspin就可获得</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-primary mt-1 mr-3"></i>
+                                <span>应用场景广泛，可替代传统能源应用于各个领域</span>
+                            </li>
+                        </ul>
+                        <a href="#" class="inline-flex items-center bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-medium transition-all">
+                            技术白皮书 <i class="fa fa-download ml-2"></i>
+                        </a>
+                    </div>
+                    <div class="md:w-1/2">
+                        <img src="https://picsum.photos/id/118/800/600" alt="CaspinTech实验室展示" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl p-8 shadow-lg hover-scale">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-cogs text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">能源转换技术</h3>
+                    <p class="text-gray-600">我们开发了高效的能源转换装置，能够将caspin物质中的能量稳定转化为机械能，转换效率高达100%。</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-8 shadow-lg hover-scale">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-shield text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">安全储存系统</h3>
+                    <p class="text-gray-600">我们的专利储存技术确保卡斯比安能在任何环境下都能安全存放，杜绝传染和开花风险。</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-8 shadow-lg hover-scale">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                        <i class="fa fa-plug text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4">智能应用网络</h3>
+                    <p class="text-gray-600">基于物联网技术，我们开发了智能能源管理系统，实现能源的高效分配和智能应用。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系我们 -->
+    <section id="contact" class="py-16 md:py-24 bg-gray-50">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-dark mb-4">联系我们</h2>
+                <div class="w-20 h-1 bg-primary mx-auto mb-6"></div>
+                <p class="text-gray-600 max-w-3xl mx-auto">有任何问题或建议？请随时与我们联系，我们将竭诚为您服务。</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <div>
+                    <div class="bg-white rounded-xl p-8 shadow-lg mb-8">
+                        <h3 class="text-xl font-bold mb-6">联系方式</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                    <i class="fa fa-map-marker text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">公司总部</h4>
+                                    <p class="text-gray-600">布拉德国首都布布拉第一大道114号法拉德研究中心caspin研究室</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                    <i class="fa fa-phone text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">联系电话</h4>
+                                    <p class="text-gray-600">114-514-1919-810</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                    <i class="fa fa-envelope text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">电子邮箱</h4>
+                                    <p class="text-gray-600">ctcompany@caspintech.blind</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                    <i class="fa fa-clock-o text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">工作时间</h4>
+                                    <p class="text-gray-600">周一至周五: 6:00pm - 18:00</p>
+                                    <p class="text-gray-600">周六至周日: 4:00pm - 16:00</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl p-8 shadow-lg">
+                        <h3 class="text-xl font-bold mb-6">全球分支机构</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                    <i class="fa fa-globe text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">猫咪国</h4>
+                                    <p class="text-gray-600">
+</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                    <i class="fa fa-globe text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">韩柯国</h4>
+                                    <p class="text-gray-600">理塘市</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mr-4 mt-1 flex-shrink-0">
+                                    <i class="fa fa-globe text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-1">后羿国</h4>
+                                    <p class="text-gray-600">后羿郡</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="bg-white rounded-xl p-8 shadow-lg">
+                        <h3 class="text-xl font-bold mb-6">合作咨询（暂不支持）</h3>
+                        <form>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label for="name" class="block text-gray-700 font-medium mb-2">公司名称</label>
+                                    <input type="text" id="name" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="请输入您的公司名称">
+                                </div>
+                                <div>
+                                    <label for="email" class="block text-gray-700 font-medium mb-2">联系人邮箱</label>
+                                    <input type="email" id="email" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="请输入您的邮箱">
+                                </div>
+                            </div>
+                            <div class="mb-6">
+                                <label for="subject" class="block text-gray-700 font-medium mb-2">咨询主题</label>
+                                <select id="subject" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all">
+                                    <option value="">请选择咨询主题</option>
+                                    <option value="product">产品咨询</option>
+                                    <option value="cooperation">合作洽谈</option>
+                                    <option value="distribution">代理申请</option>
+                                    <option value="investment">投资合作</option>
+                                    <option value="other">其他咨询</option>
+                                </select>
+                            </div>
+                            <div class="mb-6">
+                                <label for="message" class="block text-gray-700 font-medium mb-2">咨询内容</label>
+                                <textarea id="message" rows="5" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="请详细描述您的需求或问题"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-6 rounded-lg transition-all">
+                                提交咨询
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white pt-16 pb-8">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <div>
+                    <div class="flex items-center space-x-2 mb-6">
+                        <span class="text-primary text-3xl"><i class="fa fa-bolt energy-pulse"></i></span>
+                        <span class="font-bold text-xl">CaspinTech</span>
+                    </div>
+                    <p class="text-gray-400 mb-6">引领能源革命，创造绿色未来。我们致力于为全球提供清洁、高效、可持续的能源解决方案。</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+                            <i class="fa fa-weibo"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+                            <i class="fa fa-wechat"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+                            <i class="fa fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-6">快速链接</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#home" class="text-gray-400 hover:text-primary transition-colors">首页</a></li>
+                        <li><a href="#about" class="text-gray-400 hover:text-primary transition-colors">关于我们</a></li>
+                        <li><a href="#products" class="text-gray-400 hover:text-primary transition-colors">产品中心</a></li>
+                        <li><a href="#technology" class="text-gray-400 hover:text-primary transition-colors">核心技术</a></li>
+                        <li><a href="#contact" class="text-gray-400 hover:text-primary transition-colors">联系我们</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-6">资源中心（还未拥有）</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">技术白皮书</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">案例研究</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">新闻动态</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">投资者关系</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">可持续发展</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-6">订阅通讯（暂不支持）</h4>
+                    <p class="text-gray-400 mb-4">订阅我们的通讯，获取最新产品信息和行业动态。</p>
+                    <form class="mb-4">
+                        <div class="flex">
+                            <input type="email" placeholder="您的邮箱地址" class="flex-1 px-4 py-2 rounded-l-lg focus:outline-none text-dark">
+                            <button type="submit" class="bg-primary hover:bg-primary/90 px-4 py-2 rounded-r-lg transition-colors">
+                                <i class="fa fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <p class="text-gray-400 text-sm">我们尊重您的隐私，不会向除您外任何人（包括本司）分享您的信息。</p>
+                </div>
+            </div>
+            
+            <!-- 新增的免责声明文本 -->
+            <div class="text-center mb-8 text-gray-400 text-sm">
+                <p>以上所有均属娱乐，切勿追究，侵权必删</p>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2025 CaspinTech. 保留所有权利。</p>
+                    <div class="flex space-x-6">
+                        <a href="#" class="text-gray-400 hover:text-primary text-sm transition-colors">隐私政策</a>
+                        <a href="#" class="text-gray-400 hover:text-primary text-sm transition-colors">使用条款</a>
+                        <a href="#" class="text-gray-400 hover:text-primary text-sm transition-colors">Cookie政策</a>
+                        <a href="#" class="text-gray-400 hover:text-primary text-sm transition-colors">网站地图</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 返回顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all z-50">
+        <i class="fa fa-arrow-up"></i>
+    </button>
+
+    <!-- JavaScript -->
     <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const UI = document.getElementById('ui');
-        const CRAFTING_UI = document.getElementById('crafting');
-
-        // Canvas setup
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        // Game state
-        const state = {
-            player: {
-                x: canvas.width / 2,
-                y: canvas.height / 2,
-                radius: 25,
-                speed: 5,
-                health: 100,
-                maxHealth: 100,
-                petals: [],
-                equipped: [],
-                lastShot: 0,
-                lastHeal: Date.now(),
-                healInterval: 2000,
-                level: 1,
-                xp: 0
-            },
-            projectiles: [],
-            petals: [],
-            enemies: [],
-            particles: [],
-            lastEnemySpawn: 0,
-            enemySpawnCooldown: 1500,
-            lastBossSpawn: 0,
-            bossSpawnInterval: 30000
-        };
-
-        // Petal types (expanded)
-        const PETAL_TYPES = {
-            rose: { color: '#FF69B4', damage: 15, cooldown: 1000, tier: 1 },
-            cactus: { color: '#228B22', damage: 20, cooldown: 500, tier: 1 },
-            stinger: { color: '#FFD700', damage: 30, cooldown: 800, tier: 2 },
-            salt: { color: '#FFFFFF', damage: 40, cooldown: 400, tier: 3 },
-            web: { color: '#8B4513', damage: 10, cooldown: 300, tier: 2, slow: true }
-        };
-
-        // Enemy types
-        const ENEMY_TYPES = {
-            basic: { color: '#FF4444', health: 50, speed: 2, size: 30 },
-            fast: { color: '#FFA500', health: 30, speed: 4, size: 25 },
-            tank: { color: '#800080', health: 150, speed: 1.5, size: 40 }
-        };
-
-        // Sound effects
-        const sounds = {
-            shoot: new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU'),
-            hit: new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU')
-        };
-
-        // Input handling
-        const keys = {
-            ArrowUp: false,
-            ArrowDown: false,
-            ArrowLeft: false,
-            ArrowRight: false,
-            Space: false,
-            KeyC: false
-        };
-
-        // Event listeners
-        window.addEventListener('keydown', (e) => keys[e.code] = true);
-        window.addEventListener('keyup', (e) => keys[e.code] = false);
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+        // 导航栏滚动效果
+        const navbar = document.getElementById('navbar');
+        const backToTop = document.getElementById('back-to-top');
+        
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 100) {
+                navbar.classList.add('py-2', 'shadow-md');
+                navbar.classList.remove('py-3');
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                navbar.classList.add('py-3');
+                navbar.classList.remove('py-2', 'shadow-md');
+                backToTop.classList.add('opacity-0', 'invisible');
+                backToTop.classList.remove('opacity-100', 'visible');
+            }
         });
-
-        // Particle system
-        function createParticles(x, y, color) {
-            for (let i = 0; i < 10; i++) {
-                state.particles.push({
-                    x,
-                    y,
-                    dx: (Math.random() - 0.5) * 5,
-                    dy: (Math.random() - 0.5) * 5,
-                    radius: Math.random() * 3 + 2,
-                    color,
-                    lifetime: 30
-                });
+        
+        // 移动端菜单
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        menuToggle.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu.classList.contains('hidden')) {
+                menuToggle.innerHTML = '<i class="fa fa-bars"></i>';
+            } else {
+                menuToggle.innerHTML = '<i class="fa fa-times"></i>';
             }
-        }
-
-        // Petal combining system
-        function combinePetals() {
-            const petalsByType = {};
-            state.player.petals.forEach(petal => {
-                if (!petalsByType[petal.type]) petalsByType[petal.type] = [];
-                petalsByType[petal.type].push(petal);
-            });
-
-            for (const type in petalsByType) {
-                if (petalsByType[type].length >= 2) {
-                    const upgradedType = Object.keys(PETAL_TYPES).find(t =>
-                        PETAL_TYPES[t].tier === PETAL_TYPES[type].tier + 1
-                    );
-                    if (upgradedType) {
-                        state.player.petals = state.player.petals.filter(p => p!== petalsByType[type][0]);
-                        state.player.petals = state.player.petals.filter(p => p!== petalsByType[type][1]);
-                        state.player.petals.push({ type: upgradedType,...PETAL_TYPES[upgradedType] });
-                        createParticles(state.player.x, state.player.y, '#00FF00');
-                    }
-                }
-            }
-        }
-
-        // Shooting system with different behaviors
-        function shoot() {
-            const now = Date.now();
-            state.player.equipped.forEach(petal => {
-                if (now - state.player.lastShot > petal.cooldown) {
-                    const angle = Math.atan2(
-                        state.player.y - canvas.height / 2,
-                        state.player.x - canvas.width / 2
-                    );
-
-                    const projectile = {
-                        x: state.player.x,
-                        y: state.player.y,
-                        radius: 10,
-                        damage: petal.damage,
-                        color: petal.color,
-                        dx: -Math.cos(angle) * 8,
-                        dy: -Math.sin(angle) * 8,
-                        type: petal.type
-                    };
-
-                    if (petal.type === 'web') {
-                        projectile.radius = 15;
-                        projectile.dx *= 0.5;
-                        projectile.dy *= 0.5;
-                    }
-
-                    state.projectiles.push(projectile);
-                    state.player.lastShot = now;
-                    sounds.shoot.play().catch(() => {});
-                }
-            });
-        }
-
-        // Update loop
-        function update() {
-            // Player movement
-            if (keys.ArrowUp) state.player.y -= state.player.speed;
-            if (keys.ArrowDown) state.player.y += state.player.speed;
-            if (keys.ArrowLeft) state.player.x -= state.player.speed;
-            if (keys.ArrowRight) state.player.x += state.player.speed;
-
-            // Health regeneration
-            if (Date.now() - state.player.lastHeal > state.player.healInterval) {
-                state.player.health = Math.min(state.player.maxHealth, state.player.health + 5);
-                state.player.lastHeal = Date.now();
-            }
-
-            // Shooting
-            if (keys.Space) shoot();
-
-            // Crafting UI toggle
-            CRAFTING_UI.style.display = keys.KeyC? 'block' : 'none';
-
-            // Petal collection
-            state.petals = state.petals.filter(petal => {
-                const dx = state.player.x - petal.x;
-                const dy = state.player.y - petal.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < state.player.radius + 15) {
-                    state.player.petals.push({
-                        type: petal.type,
-                        ...PETAL_TYPES[petal.type]
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
                     });
-                    return false;
-                }
-                return true;
-            });
-
-            // Enemy spawning system
-            const now = Date.now();
-            if (now - state.lastEnemySpawn > state.enemySpawnCooldown) {
-                const type = Math.random() < 0.1? 'tank' : Math.random() < 0.3? 'fast' : 'basic';
-                state.enemies.push({
-                   ...ENEMY_TYPES[type],
-                    x: Math.random() < 0.5? -50 : canvas.width + 50,
-                    y: Math.random() * canvas.height
-                });
-                state.lastEnemySpawn = now;
-            }
-
-            // Boss spawning
-            if (now - state.lastBossSpawn > state.bossSpawnInterval) {
-                state.enemies.push({
-                    color: '#FF0000',
-                    health: 500,
-                    speed: 1,
-                    size: 80,
-                    isBoss: true
-                });
-                state.lastBossSpawn = now;
-            }
-
-            // Enemy AI
-            state.enemies.forEach(enemy => {
-                const angle = Math.atan2(
-                    state.player.y - enemy.y,
-                    state.player.x - enemy.x
-                );
-                enemy.x += Math.cos(angle) * enemy.speed;
-                enemy.y += Math.sin(angle) * enemy.speed;
-
-                // Collision with player
-                const dx = state.player.x - enemy.x;
-                const dy = state.player.y - enemy.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < state.player.radius + (enemy.size / 2)) {
-                    state.player.health -= enemy.isBoss? 5 : 1;
-                }
-            });
-
-            // Projectile movement and collision
-            state.projectiles.forEach(projectile => {
-                projectile.x += projectile.dx;
-                projectile.y += projectile.dy;
-
-                state.enemies.forEach(enemy => {
-                    const dx = projectile.x - enemy.x;
-                    const dy = projectile.y - enemy.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < projectile.radius + (enemy.size / 2)) {
-                        enemy.health -= projectile.damage;
-                        createParticles(enemy.x, enemy.y, enemy.color);
-                        sounds.hit.play().catch(() => {});
-
-                        if (projectile.type === 'web') {
-                            enemy.speed *= 0.5;
-                        }
+                    
+                    // 关闭移动菜单
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                        menuToggle.innerHTML = '<i class="fa fa-bars"></i>';
                     }
-                });
-            });
-
-            // Particle update
-            state.particles.forEach((p, index) => {
-                p.x += p.dx;
-                p.y += p.dy;
-                p.lifetime--;
-                if (p.lifetime <= 0) {
-                    state.particles.splice(index, 1);
                 }
             });
-
-            // Remove dead enemies
-            state.enemies = state.enemies.filter(enemy => enemy.health > 0);
-
-            // Remove out-of-bounds projectiles
-            state.projectiles = state.projectiles.filter(projectile => {
-                return projectile.x > 0 && projectile.x < canvas.width && projectile.y > 0 && projectile.y < canvas.height;
+        });
+        
+        // 返回顶部
+        backToTop.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
-        }
-
-        // Draw function
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw player
-            ctx.fillStyle = '#00FF00';
-            ctx.beginPath();
-            ctx.arc(state.player.x, state.player.y, state.player.radius, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Draw equipped petals
-            state.player.equipped.forEach((petal, i) => {
-                ctx.fillStyle = petal.color;
-                ctx.beginPath();
-                ctx.arc(
-                    state.player.x + Math.cos((i * Math.PI / 2)) * 35,
-                    state.player.y + Math.sin((i * Math.PI / 2)) * 35,
-                    12, 0, Math.PI * 2
-                );
-                ctx.fill();
-            });
-
-            // Draw projectiles
-            state.projectiles.forEach(projectile => {
-                ctx.fillStyle = projectile.color;
-                ctx.beginPath();
-                ctx.arc(projectile.x, projectile.y, projectile.radius, 0, Math.PI * 2);
-                ctx.fill();
-            });
-
-            // Draw collectible petals
-            state.petals.forEach(petal => {
-                ctx.fillStyle = PETAL_TYPES[petal.type].color;
-                ctx.beginPath();
-                ctx.arc(petal.x, petal.y, 15, 0, Math.PI * 2);
-                ctx.fill();
-            });
-
-            // Draw enemies
-            state.enemies.forEach(enemy => {
-                ctx.fillStyle = enemy.color;
-                ctx.beginPath();
-                ctx.arc(enemy.x, enemy.y, enemy.size / 2, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Health bar
-                if (enemy.isBoss) {
-                    ctx.fillStyle = '#000000';
-                    ctx.fillRect(enemy.x - 40, enemy.y - 50, 80, 5);
-                    ctx.fillStyle = '#00FF00';
-                    ctx.fillRect(enemy.x - 40, enemy.y - 50, (enemy.health / 500) * 80, 5);
-                }
-            });
-
-            // Draw particles
-            state.particles.forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fill();
-            });
-
-            // UI
-            UI.innerHTML = `
-                Level: ${state.player.level} ❤️ ${Math.round(state.player.health)}/${state.player.maxHealth}<br>
-                XP: ${state.player.xp}/${state.player.level * 100}<br>
-                Petals: ${state.player.petals.length} (C to craft)<br>
-                Equipped: ${state.player.equipped.map(p => p.type).join(', ')}
-            `;
-        }
-
-        // Game loop
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
-        // Initialize game
-        (function init() {
-            // Spawn initial petals
-            for (let i = 0; i < 20; i++) {
-                state.petals.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    type: Object.keys(PETAL_TYPES)[Math.floor(Math.random() * Object.keys(PETAL_TYPES).length)]
-                });
-            }
-            gameLoop();
-        })();
+        });
     </script>
-</body>
 
-</html>
+    </body></html>
