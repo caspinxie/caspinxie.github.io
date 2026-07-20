@@ -1,5 +1,4 @@
 
-
 ```html
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -434,6 +433,26 @@
                 transform: translateY(0);
             }
         }
+
+        /* 抖动动画 */
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            20% {
+                transform: translateX(-8px);
+            }
+            40% {
+                transform: translateX(8px);
+            }
+            60% {
+                transform: translateX(-4px);
+            }
+            80% {
+                transform: translateX(4px);
+            }
+        }
     </style>
 </head>
 <body>
@@ -446,17 +465,30 @@
                 <i class="fas fa-lock"></i>
             </div>
             <h1>欢迎回来</h1>
-            <p>登录您的账号以继续</p>
+            <p>使用您的用户名或邮箱登录</p>
         </div>
 
         <!-- ===== 错误提示 ===== -->
         <div class="error-message" id="errorMessage">
             <i class="fas fa-exclamation-circle"></i>
-            <span id="errorText">请输入正确的邮箱和密码</span>
+            <span id="errorText">请输入正确的用户名、邮箱和密码</span>
         </div>
 
         <!-- ===== 登录表单 ===== -->
         <form class="login-form" id="loginForm" novalidate>
+            <!-- 用户名（新增） -->
+            <div class="form-group">
+                <input
+                type="text"
+                id="usernameInput"
+                placeholder="用户名"
+                value="demo_user"
+                required
+                autocomplete="username"
+                />
+                <i class="fas fa-user input-icon"></i>
+            </div>
+
             <!-- 邮箱 -->
             <div class="form-group">
                 <input
@@ -534,6 +566,7 @@
 
             // ----- DOM 引用 -----
             const form = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('usernameInput');
             const emailInput = document.getElementById('emailInput');
             const passwordInput = document.getElementById('passwordInput');
             const toggleBtn = document.getElementById('togglePassword');
@@ -557,6 +590,7 @@
                 // 清除旧错误
                 errorMsg.classList.remove('show');
 
+                const username = usernameInput.value.trim();
                 const email = emailInput.value.trim();
                 const password = passwordInput.value.trim();
 
@@ -564,11 +598,17 @@
                 let hasError = false;
                 let errMessage = '';
 
+                // 用户名：非空
+                if (!username) {
+                    errMessage = '请输入用户名';
+                    hasError = true;
+                }
+
                 // 邮箱：非空 + 基本格式
-                if (!email) {
+                if (!hasError && !email) {
                     errMessage = '请输入邮箱地址';
                     hasError = true;
-                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                } else if (!hasError && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                     errMessage = '请输入有效的邮箱地址 (例如: name@domain.com)';
                     hasError = true;
                 }
@@ -602,7 +642,7 @@
 
                 // 模拟延迟
                 setTimeout(function() {
-                    // 登录成功：显示成功反馈（这里仅做演示）
+                    // 登录成功
                     loginBtn.classList.remove('loading');
                     loginBtn.querySelector('.btn-content i').className = 'fas fa-check-circle';
                     loginBtn.querySelector('.btn-content span').textContent = '登录成功！';
@@ -612,36 +652,23 @@
                         loginBtn.querySelector('.btn-content i').className = 'fas fa-arrow-right-to-bracket';
                         loginBtn.querySelector('.btn-content span').textContent = '登录';
                         loginBtn.disabled = false;
-                        // 你也可以在此重定向或执行其他操作
+                        // 可在此重定向
                         // window.location.href = '/dashboard';
                     }, 2000);
 
-                    // 此处可以添加实际登录逻辑，例如 fetch('/api/login', ...)
                     console.log('✅ 登录成功 (模拟)');
+                    console.log('用户名:', username);
                     console.log('邮箱:', email);
                     console.log('密码:', password);
                 }, 1500);
             });
 
             // ----- 输入时自动隐藏错误 -----
-            [emailInput, passwordInput].forEach(input => {
+            [usernameInput, emailInput, passwordInput].forEach(input => {
                 input.addEventListener('input', function() {
                     errorMsg.classList.remove('show');
                 });
             });
-
-            // ----- 抖动动画 (CSS) -----
-            const styleShake = document.createElement('style');
-            styleShake.textContent = `
-                        @keyframes shake {
-                            0%, 100% { transform: translateX(0); }
-                            20% { transform: translateX(-8px); }
-                            40% { transform: translateX(8px); }
-                            60% { transform: translateX(-4px); }
-                            80% { transform: translateX(4px); }
-                        }
-                    `;
-            document.head.appendChild(styleShake);
 
             // 清除默认的 errorMessage 动画（避免干扰）
             errorMsg.style.animation = 'none';
