@@ -1,4 +1,5 @@
 
+
 ```html
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -476,7 +477,7 @@
 
         <!-- ===== 登录表单 ===== -->
         <form class="login-form" id="loginForm" novalidate>
-            <!-- 用户名（新增） -->
+            <!-- 用户名 -->
             <div class="form-group">
                 <input
                 type="text"
@@ -622,7 +623,7 @@
                     hasError = true;
                 }
 
-                // ---- 显示错误或模拟登录 ----
+                // ---- 显示错误或跳转 ----
                 if (hasError) {
                     errorText.textContent = errMessage;
                     errorMsg.classList.add('show');
@@ -634,33 +635,17 @@
                     return;
                 }
 
-                // ---- 模拟登录加载 ----
+                // ---- 模拟登录加载，然后跳转到 florr.html ----
                 loginBtn.classList.add('loading');
                 loginBtn.querySelector('.btn-content i').className = 'fas fa-spinner fa-pulse';
                 loginBtn.querySelector('.btn-content span').textContent = '登录中...';
                 loginBtn.disabled = true;
 
-                // 模拟延迟
+                // 模拟异步请求，延迟后跳转
                 setTimeout(function() {
-                    // 登录成功
-                    loginBtn.classList.remove('loading');
-                    loginBtn.querySelector('.btn-content i').className = 'fas fa-check-circle';
-                    loginBtn.querySelector('.btn-content span').textContent = '登录成功！';
-
-                    // 2秒后恢复按钮
-                    setTimeout(function() {
-                        loginBtn.querySelector('.btn-content i').className = 'fas fa-arrow-right-to-bracket';
-                        loginBtn.querySelector('.btn-content span').textContent = '登录';
-                        loginBtn.disabled = false;
-                        // 可在此重定向
-                        // window.location.href = '/dashboard';
-                    }, 2000);
-
-                    console.log('✅ 登录成功 (模拟)');
-                    console.log('用户名:', username);
-                    console.log('邮箱:', email);
-                    console.log('密码:', password);
-                }, 1500);
+                    // 登录成功，跳转到 florr.html
+                    window.location.href = 'florr.html';
+                }, 1200); // 1.2 秒后跳转，让用户看到加载状态
             });
 
             // ----- 输入时自动隐藏错误 -----
@@ -680,5 +665,49 @@
 </html>
 ```
 
+---
 
+📄 如何创建 florr.html
+
+在同一目录下新建一个 florr.html 文件，写入您想要显示的内容。例如，一个简单的欢迎页面：
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Florr 仪表盘</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e1e2f, #2d2d44);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { font-size: 3rem; }
+        a { color: #a29bfe; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌸 欢迎来到 Florr</h1>
+        <p>您已成功登录！</p>
+        <a href="index.html">← 返回登录页</a>
+    </div>
+</body>
+</html>
+```
 
