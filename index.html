@@ -180,7 +180,7 @@ function d(pd, ph = 1, typ = ""){
 
 const h  = ph => ph * (petalhealth + 0.3*udl + 0.45*dl + 0.6*qdl);
 const mh = ph => ph * summoner;
-const fx = x => (x === 0 ? 0 : 0.0003664 * (x - 13.06));
+const fx = x => (x === -1 ? 0 : 0.0003664 * (x - 13.06));
 
 function r(rel, ph = 1){
   let res = rnd(rel * reload * (0.825**ugl) * (0.8**gl) * (0.775**qgl) * (1.05**(udl+dl+qdl)));
