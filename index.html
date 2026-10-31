@@ -747,7 +747,7 @@ function calw(petal){
 function analyze(buildStr, talentStr, x, y, mode, lentildis, rotspeed) {
     let build = buildStr.trim().split(/\s+/).filter(s => s);
     
-    // 展开带数字前缀的花瓣 (如 2pearl)
+    // 展开带数字前缀的花瓣 (如 99pearl、99ugl_)
     let expanded = true;
     while (expanded) {
         expanded = false;
@@ -760,6 +760,7 @@ function analyze(buildStr, talentStr, x, y, mode, lentildis, rotspeed) {
                 let name = match[2];
                 build.splice(i, 1);
                 for (let j = 0; j < times; j++) {
+                    if (build.length >= 99) break; // ⚡️ 限制：只要总数达到99个，就不再继续添加
                     build.splice(i + j, 0, name);
                 }
                 break;
@@ -767,6 +768,10 @@ function analyze(buildStr, talentStr, x, y, mode, lentildis, rotspeed) {
         }
     }
 
+    // ⚡️ 限制：如果直接手打了超过 99 个空格分隔的花瓣，直接截断保留前 99 个
+    if (build.length > 99) {
+        build = build.slice(0, 99);
+  }
     let talent = talentStr.trim().split(/\s+/).filter(s => s);
     
     petalhealth = ph_buff[talent[0]] || 1;
