@@ -1,3 +1,7 @@
+出现“点击没反应”的原因是：上次的代码中漏掉了核心的 analyze 函数以及按钮点击事件的绑定逻辑。同时，截图最上方显示出了  ```html ，说明你复制时把 Markdown 的代码块标记也一起复制进去了，这会导致页面渲染异常。
+
+请全选你目前的代码并删除，然后完整复制以下最新的代码替换进去。这份代码已经补全了所有的计算逻辑和按钮交互：
+
 ```html
 <!DOCTYPE html>
 <html lang="zh-CN">
@@ -206,26 +210,21 @@ function hr(rel, ph = 1){
 function cal(petal){
   const f = n => petal === n;
 
-  // basic / clover / salt / talisman / yinyang
   if (f("ubasic")||f("uclover")||f("usalt")||f("utalisman")||f("uyinyang")) return d(7290, h(7290)) / r(2.5, h(7290));
   if (f("basic") ||f("clover") ||f("salt") ||f("talisman") ||f("yinyang"))  return d(21870, h(21870)) / r(2.5, h(21870));
   if (f("qbasic")||f("qclover")||f("qsalt")||f("qtalisman")||f("qyinyang")||f("tbasic")) return d(65610, h(65610)) / r(2.5, h(65610));
-  // battery
   if (f("ubattery")) return d(26244,  h(1), "ubattery")  / (r(2.5) + 0.1);
   if (f("battery"))  return d(78732,  h(1), "battery")   / (r(2.5) + 0.1);
   if (f("qbattery")) return d(236196, h(1), "qbattery")  / (r(2.5) + 0.1);
-  // bean
   if (f("ubean")||f("ubean_0")) return d(14580,  h(8748)) / r(2, h(8748));
   if (f("ubean_1"))             return d(21870,  h(8748)) / r(2, h(8748));
   if (f("bean") ||f("bean_0"))  return d(43740,  h(26244)) / r(2, h(26244));
   if (f("bean_1"))              return d(65610,  h(26244)) / r(2, h(26244));
   if (f("qbean")||f("qbean_0")) return d(131220, h(78732)) / r(2, h(78732));
   if (f("qbean_1"))             return d(196830, h(78732)) / r(2, h(78732));
-  // bone
   if (f("ubone")) return d(10206, h(7290),  "ubone") / r(2.5, h(7290)  + 14580);
   if (f("bone"))  return d(30618, h(21870), "bone")  / r(2.5, h(21870) + 43740);
   if (f("qbone")) return d(91854, h(65610), "qbone") / r(2.5, h(65610) + 131220);
-  // broccoli
   if (f("ubroccoli")||f("ubroccoli_0")) return d(10935, h(7290)) / r(2.8, h(7290));
   if (f("ubroccoli_1")||f("ubroccoli_2")||f("ubroccoli_3"))
     return (d(10935, h(7290)) + parseInt(petal.slice(10)) * d(3645, h(2430))) / r(2.8, h(7290));
@@ -235,103 +234,81 @@ function cal(petal){
   if (f("qbroccoli")||f("qbroccoli_0")) return d(98415, h(65610)) / r(2.8, h(65610));
   if (f("qbroccoli_1")||f("qbroccoli_2")||f("qbroccoli_3"))
     return (d(98415, h(65610)) + parseInt(petal.slice(10)) * d(32805, h(21870))) / r(2.8, h(65610));
-  // bur
   if (f("ubur")) return d(3645,  h(3645))  / r(2, h(3645));
   if (f("bur"))  return d(10935, h(10935)) / r(2, h(10935));
   if (f("qbur")) return d(32805, h(32805)) / r(2, h(32805));
-  // cactus / cactus(magic)
   if (f("ucactus")||f("ucactus_magic")) return d(5103,  h(10935)) / r(1, h(10935));
   if (f("cactus") ||f("cactus_magic"))  return d(15309, h(32805)) / r(1, h(32805));
   if (f("qcactus")||f("qcactus_magic")) return d(45927, h(98415)) / r(1, h(98415));
-  // card
   if (f("ucard")) return (d(3645, h(21870))/r(2.5, h(21870)) + d(7290, h(18225))/r(2.5, h(18225))
                         + d(10935, h(14580))/r(2.5, h(14580)) + d(14580, h(10935))/r(2.5, h(10935))) / 4;
   if (f("card"))  return (d(10935, h(65610))/r(2.5, h(65610)) + d(21870, h(54675))/r(2.5, h(54675))
                         + d(32805, h(43740))/r(2.5, h(43740)) + d(43740, h(32805))/r(2.5, h(32805))) / 4;
   if (f("qcard")) return (d(32805, h(196830))/r(2.5, h(196830)) + d(65610, h(164025))/r(2.5, h(164025))
                         + d(98415, h(131220))/r(2.5, h(131220)) + d(131220, h(98415))/r(2.5, h(98415))) / 4;
-  // carrot
   if (f("ucarrot_0")) return d(13122/5,  h(13122)) / r(1, h(13122));
   if (f("carrot_0"))  return d(39366/5,  h(39366)) / r(1, h(39366));
   if (f("qcarrot_0")) return d(118098/5, h(118098))/ r(1, h(118098));
   if (f("ucarrot")||f("ucarrot_1")) return d(13122,  h(13122))  / (r(1, h(13122))  + 0.5);
   if (f("carrot") ||f("carrot_1"))  return d(39366,  h(39366))  / (r(1, h(39366))  + 0.5);
   if (f("qcarrot")||f("carrot_1"))  return d(118098, h(118098)) / (r(1, h(118098)) + 0.5);
-  // chip
   if (f("uchip")) return d(5103,  h(2187)) * 10 / r(2.5, h(2187) + 0.9**10/(1-0.9**10)*0.04);
   if (f("chip"))  return d(15309, h(2187)) * 10 / (r(2.5, h(2187)) + 0.9**10/(1-0.9**10)*0.04);
   if (f("qchip")) return d(45927, h(2187)) * 10 / r(2.5, h(2187) + 0.9**10/(1-0.9**10)*0.04);
-  // claw
   if (f("uclaw_0")) return d(3645,  h(7290))  / r(3.5, h(7290));
   if (f("uclaw")||f("uclaw_1")) return d(3645,  h(7290),  "uclaw") / r(3.5, h(7290));
   if (f("claw_0"))  return d(10935, h(21870)) / r(3.5, h(21870));
   if (f("claw") ||f("claw_1"))  return d(10935, h(21870), "claw")  / r(3.5, h(21870));
   if (f("qclaw_0")) return d(32805, h(65610)) / r(3.5, h(65610));
   if (f("qclaw")||f("qclaw_1")) return d(32805, h(65610), "qclaw") / r(3.5, h(65610));
-  // clay
   if (f("uclay")||f("uclay_0")) return d(3645,  h(7290))  / r(2, h(7290));
   if (f("uclay_1"))             return d(72900, h(7290))  / r(2, h(7290));
   if (f("clay") ||f("clay_0"))  return d(10935, h(21870)) / r(2, h(21870));
   if (f("clay_1"))              return d(218700,h(21870)) / r(2, h(21870));
   if (f("qclay")||f("qclay_0")) return d(32805, h(65610)) / r(2, h(65610));
   if (f("qclay_1"))             return d(656100,h(65610)) / r(2, h(65610));
-  // cog
   if (f("ucog")) return d(13851, h(9477))  / r(2.5, h(9477));
   if (f("cog"))  return d(41553, h(28431)) / r(2.5, h(28431));
   if (f("qcog")) return d(124659,h(85293)) / r(2.5, h(85293));
-  // coin
   if (f("ucoin")) return d(10935, h(7290))  / r(2.5, h(7290));
   if (f("coin"))  return d(32805, h(21870)) / r(2.5, h(21870));
   if (f("qcoin")) return d(98415, h(65610)) / r(2.5, h(65610));
-  // coral
   if (f("ucoral")) return d(8019*3/7)  / (r(1.5) + 0.08) * 7;
   if (f("coral"))  return d(24057*3/7) / (r(1.5) + 0.08) * 7;
   if (f("qcoral")) return d(72171*3/7) / (r(1.5) + 0.08) * 7;
-  // corn
   if (f("ucorn")) return d(5832,  h(145800))  / r(7, h(145800));
   if (f("corn"))  return d(17496, h(437400))  / r(7, h(437400));
   if (f("qcorn")) return d(52488, h(1312200)) / r(7, h(1312200));
-  // dandelion
   if (f("udandelion")) return d(1944,  h(1944))  / r(1, h(1944))  * (3 + dup);
   if (f("dandelion"))  return d(5832,  h(5832))  / r(1, h(5832))  * (3 + dup);
   if (f("qdandelion")) return d(17496, h(17496)) / r(1, h(17496)) * (3 + dup);
-  // dice
   if (f("udice")) return d(7290  * (2.7 + 1.36*luck), h(7290))  / r(2.5, h(7290));
   if (f("dice"))  return d(21870 * (2.7 + 1.36*luck), h(21870)) / r(2.5, h(21870));
   if (f("qdice")) return d(65610 * (2.7 + 1.36*luck), h(65610)) / r(2.5, h(65610));
-  // domino
   if (f("udomino")) return (d(0,h(11664))*7 + d(729,h(11664)) + d(729*2,h(11664)) + d(729*3,h(11664)) + d(729*4,h(11664))*2 + d(729*5,h(11664)) + d(729*6,h(11664))*2 + d(729*8,h(11664)) + d(729*9,h(11664)) + d(729*10,h(11664)) + d(729*12,h(11664))*2 + d(729*15,h(11664)) + d(729*16,h(11664)) + d(729*18,h(11664)) + d(729*20,h(11664)) + d(729*24,h(11664)) + d(729*25,h(11664)) + d(729*30,h(11664)) + d(729*36,h(11664))) / 28 / r(1.0, h(11664));
   if (f("domino"))  return (d(0,h(34992))*7 + d(2187,h(34992)) + d(2187*2,h(34992)) + d(2187*3,h(34992)) + d(2187*4,h(34992))*2 + d(2187*5,h(34992)) + d(2187*6,h(34992))*2 + d(2187*8,h(34992)) + d(2187*9,h(34992)) + d(2187*10,h(34992)) + d(2187*12,h(34992))*2 + d(2187*15,h(34992)) + d(2187*16,h(34992)) + d(2187*18,h(34992)) + d(2187*20,h(34992)) + d(2187*24,h(34992)) + d(2187*25,h(34992)) + d(2187*30,h(34992)) + d(2187*36,h(34992))) / 28 / r(1.0, h(34992));
   if (f("qdomino")) return (d(0,h(104976))*7 + d(6561,h(104976)) + d(6561*2,h(104976)) + d(6561*3,h(104976)) + d(6561*4,h(104976))*2 + d(6561*5,h(104976)) + d(6561*6,h(104976))*2 + d(6561*8,h(104976)) + d(6561*9,h(104976)) + d(6561*10,h(104976)) + d(6561*12,h(104976))*2 + d(6561*15,h(104976)) + d(6561*16,h(104976)) + d(6561*18,h(104976)) + d(6561*20,h(104976)) + d(6561*24,h(104976)) + d(6561*25,h(104976)) + d(6561*30,h(104976)) + d(6561*36,h(104976))) / 28 / r(1.0, h(104976));
-  // dust
   if (f("udust")) return d(3159, h(1215)) / r(0.8, h(1215)) * (3 + dup);
   if (f("dust"))  return d(9477, h(3645)) / r(0.8, h(3645)) * (3 + dup);
   if (f("qdust")) return d(28431,h(10935)) / r(0.8, h(10935)) * (3 + dup);
-  // agg
   if (f("uagg")) return d(4374,  mh(182250),  "uagg") / mr(60, mh(182250))  * (4 + dup);
   if (f("agg"))  return d(13122, mh(546750),  "agg")  / mr(60, mh(547650))  * (4 + dup);
   if (f("qagg")) return d(39366, mh(1640250), "qagg") / mr(60, mh(1640250)) * (4 + dup);
-  // bgg
   if (f("ubgg")) return d(5103,  mh(364500),  "ubgg") / mr(30, mh(1093500));
   if (f("bgg"))  return d(15309, mh(1093500), "bgg")  / mr(30, mh(1093500));
   if (f("qbgg")) return d(45927, mh(3280500), "qbgg") / mr(30, mh(3280500));
-  // fang
   if (f("ufang")) return d(10935) / r(3.5);
   if (f("fang"))  return d(32805) / r(3.5);
   if (f("qfang")) return d(98415) / r(3.5);
-  // faster
   if (f("ufaster")) return d(8748,  h(3645))  / r(2.5, h(3645));
   if (f("faster"))  return d(26244, h(10935)) / r(2.5, h(10935));
   if (f("qfaster")) return d(78732, h(32805)) / r(2.5, h(32805));
-  // fragment / mjolnir
   if (f("ufragment")) return d(364.5, h(364.5)) / r(10, h(364.5)) * 2;
   if (f("fragment"))  return d(729,   h(729))   / r(10, h(729))   * 3;
   if (f("qmjolnir")||f("qmjölnir")) return d(328050, h(328050), "qmjolnir") / r(8, h(328050));
-  // glass
   if (f("uglass")) return d(16038);
   if (f("glass"))  return d(48114);
   if (f("qglass")) return d(144342);
-  // grapes
   if (f("ugrapes")||f("ugrapes_0")) return d(2187, h(3645)) / r(1.5, h(3645)) + (18225/0.7) * poison;
   if (f("ugrapes_1")||f("ugrapes_2")||f("ugrapes_3")||f("ugrapes_4")||f("ugrapes_5")||f("ugrapes_6"))
     return (d(2187, h(3645)) / r(1.5, h(3645) + 0.5) + (18225/0.7) * poison) * parseInt(petal.slice(8));
@@ -341,50 +318,39 @@ function cal(petal){
   if (f("qgrapes")||f("qgrapes_0")) return d(19683, h(32805)) / r(1.5, h(32805)) + (164025/0.7) * poison;
   if (f("qgrapes_1")||f("qgrapes_2")||f("qgrapes_3")||f("qgrapes_4")||f("qgrapes_5")||f("qgrapes_6"))
     return (d(19683, h(32805)) / r(1.5, h(32805) + 0.5) + (164025/0.7) * poison) * parseInt(petal.slice(8));
-  // heavy
   if (f("uheavy")) return d(9477,  h(109350)) / r(10, h(109350));
   if (f("heavy"))  return d(28431, h(328050)) / r(10, h(328050));
   if (f("qheavy")) return d(85293, h(984150)) / r(10, h(984150));
-  // iris
   if (f("uiris")) return d(3645,  h(3645))  / r(4, h(3645))  + 17010  * poison;
   if (f("iris"))  return d(10935, h(10935)) / r(4, h(10935)) + 51030  * poison;
   if (f("qiris")) return d(32805, h(32805)) / r(4, h(32805)) + 153090 * poison;
-  // jelly
   if (f("ujelly")) return d(7290,  h(7290))  / hr(10, h(7290));
   if (f("jelly"))  return d(21870, h(21870)) / hr(10, h(21870));
   if (f("qjelly")) return d(65610, h(65610)) / hr(10, h(65610));
-  // laser
   if (f("ulaser_0")) return d(3645,  h(7290))  / hr(5, h(7290));
   if (f("ulaser")||f("ulaser_1")) return 36450;
   if (f("laser_0"))  return d(10935, h(21870)) / hr(5, h(21870));
   if (f("laser") ||f("laser_1"))  return 109350;
   if (f("qlaser_0")) return d(32805, h(65610)) / hr(5, h(65610));
   if (f("qlaser")||f("laser_1"))  return 328050;
-  // leaf / leaf(magic)
   if (f("uleaf")||f("uleaf(magic)")) return d(11664,  h(8748))  / r(1.8, h(8748));
   if (f("leaf") ||f("leaf(magic)"))  return d(34992,  h(26244)) / r(1.8, h(26244));
   if (f("qleaf")||f("qleaf(magic)")) return d(104976, h(78732)) / r(1.8, h(78732));
-  // leaf(dead)
   if (f("udl")||f("uleaf(dead)")) return d(11664, h(8748))  / r(1.8/1.05, h(8748 /petalhealth*(petalhealth-0.3)));
   if (f("dl") ||f("leaf(dead)"))  return d(34992, h(26244)) / r(1.8/1.05, h(26244/petalhealth*(petalhealth-0.45)));
   if (f("qdl")||f("qleaf(dead)")) return d(104976,h(78732)) / r(1.8/1.05, h(78732/petalhealth*(petalhealth-0.6)));
-  // leaf(golden)
   if (f("ugl")||f("uleaf(golden)")) return d(11664,  h(8748))  / r(2.5/0.825, h(8748));
   if (f("gl") ||f("leaf(golden)"))  return d(34992,  h(26244)) / r(2.5/0.8,   h(26244));
   if (f("qgl")||f("qleaf(golden)")) return d(104976, h(78732)) / r(2.5/0.775, h(78732));
-  // lentil
   if (f("ulentil")) return d(9477,  h(8748))  / r(2, h(8748));
   if (f("lentil"))  return d(28431, h(26244)) / r(2, h(26244));
   if (f("qlentil")) return d(85293, h(78732)) / r(2, h(78732));
-  // light
   if (f("ulight")) return d(1895.4,  h(729))  / r(0.8, h(729))  * (5 + dup);
   if (f("light"))  return d(5686.2,  h(2187)) / r(0.8, h(2187)) * (5 + dup);
   if (f("qlight")) return d(17058.6, h(6561)) / r(0.8, h(6561)) * (5 + dup);
-  // lightning
   if (f("ulightning")) return d(8748,  h(14580),  "ulightning")  / r(2.5);
   if (f("lightning"))  return d(26244, h(43740),  "lightning")   / r(2.5);
   if (f("qlightning")) return d(78732, h(131220), "qlightning")  / r(2.5);
-  // missile / missile(mecha)
   if (f("umissile_0")||f("umissile(mecha)_0")) return d(25515/5,  h(1458))  / r(1.5, h(1458));
   if (f("umissile")||f("umissile_1")||f("umissile(mecha)")||f("umissile(mecha)_1"))
     return d(25515, h(1458)) / (r(1.5, h(1458)) + 0.5);
@@ -394,18 +360,15 @@ function cal(petal){
   if (f("qmissile_0")||f("qmissile(mecha)_0")) return d(229635/5, h(13122)) / r(1.5, h(13122));
   if (f("qmissile")||f("qmissile_1")||f("qmissile(mecha)")||f("qmissile(mecha)_1"))
     return d(229635, h(13122)) / (r(1.5, h(13122)) + 0.5);
-  // orange
   if (f("uorange")) return d(5832,  h(4860))  / r(3.5, h(4860))  * (3 + dup);
   if (f("orange"))  return d(17496, h(14580)) / r(3.5, h(14580)) * (3 + dup);
   if (f("qorange")) return d(52488, h(43740)) / r(3.5, h(43740)) * (3 + dup);
-  // pearl
   if (f("upearl")||f("upearl_0")) return d(14580,  h(36450))  / r(4, h(36450));
   if (f("upearl_1"))              return d(14580,  h(36450))  / (r(4, h(36450))  + 0.5);
   if (f("pearl") ||f("pearl_0"))  return d(43740,  h(109350)) / r(4, h(109350));
   if (f("pearl_1"))               return d(43740,  h(109350)) / (r(4, h(109350)) + 0.5);
   if (f("qpearl")||f("qpearl_0")) return d(131220, h(328050)) / r(4, h(328050));
   if (f("qpearl_1"))              return d(131220, h(328050)) / (r(4, h(328050)) + 0.5);
-  // peas
   if (f("upeas")||f("upeas_0")) return d(10935, h(3645)) / r(1.5, h(3645));
   if (f("upeas_1")||f("upeas_2")||f("upeas_3")||f("upeas_4")||f("upeas_5")||f("upeas_6"))
     return d(10935, h(3645)) / (r(1.5, h(3645)) + 0.5) * parseInt(petal.slice(6));
@@ -415,18 +378,15 @@ function cal(petal){
   if (f("qpeas")||f("qpeas_0")) return d(98415, h(32805)) / r(1.5, h(32805));
   if (f("qpeas_1")||f("qpeas_2")||f("qpeas_3")||f("qpeas_4")||f("qpeas_5")||f("qpeas_6"))
     return d(98415, h(32805)) / (r(1.5, h(32805)) + 0.5) * parseInt(petal.slice(6));
-  // pincer
   if (f("upincer")) return d(3645,  h(3645))  / r(2.5, h(3645))  + 14580  * poison;
   if (f("pincer"))  return d(10935, h(10935)) / r(2.5, h(10935)) + 43740  * poison;
   if (f("qpincer")) return d(32805, h(32805)) / r(2.5, h(32805)) + 131220 * poison;
-  // pollen
   if (f("upollen_0")) return d(9234, h(1215)) / r(2, h(1215)) * (3 + dup);
   if (f("upollen")||f("upollen_1")) return d(9234, h(1215)) / (r(2, h(1215)) + 0.5) * (3 + dup);
   if (f("pollen_0"))  return d(27702, h(3645)) / r(2, h(3645)) * (3 + dup);
   if (f("pollen")||f("pollen_1"))   return d(27702, h(3645)) / (r(2, h(3645)) + 0.5) * (3 + dup);
   if (f("qpollen_0")) return d(83106, h(10935)) / r(2, h(10935)) * (3 + dup);
   if (f("qpollen")||f("qpollen_1")) return d(83106, h(10935)) / (r(2, h(10935)) + 0.5) * (3 + dup);
-  // privet
   if (f("uprivet_ug")) return (18225/0.7)*poison*0.2 / r(4*0.7**6);
   if (f("uprivet_ui")) return 17010*poison*0.2 / r(4*0.7**6);
   if (f("uprivet_up")) return 14580*poison*0.2 / r(4*0.7**6);
@@ -463,62 +423,48 @@ function cal(petal){
   if (f("qprivet_qi")) return 153090*poison*0.2 / r(4*0.7**8);
   if (f("qprivet_qp")) return 131220*poison*0.2 / r(4*0.7**8);
   if (f("qprivet_qu")) return 328050*poison*0.2 / r(4*0.7**8);
-  // rice
   if (f("urice")) return d(2916,  h(729))  / r(0.05, h(729));
   if (f("rice"))  return d(8748,  h(2187)) / r(0.05, h(2187));
   if (f("qrice")) return d(26244, h(6561)) / r(0.05, h(6561));
-  // rock
   if (f("urock")) return d(16038,  h(21870))  / r(3, h(21870));
   if (f("rock"))  return d(48114,  h(65610))  / r(3, h(65610));
   if (f("qrock")) return d(144342, h(196830)) / r(3, h(196830));
-  // sand
   if (f("usand")) return d(3645,  h(911.25))  / r(1.5, h(911.25))  * (4 + dup);
   if (f("sand"))  return d(10935, h(2733.75)) / r(1.5, h(2733.75)) * (4 + dup);
   if (f("qsand")) return d(32805, h(8201.25)) / r(1.5, h(8201.25)) * (4 + dup);
-  // sawblade
   if (f("usawblade")) return d(29160,  h(18225))  / r(2.5, h(18225));
   if (f("sawblade"))  return d(87480,  h(54675))  / r(2.5, h(54675));
   if (f("qsawblade")) return d(262440, h(164025)) / r(2.5, h(164025));
-  // starfish
   if (f("ustarfish")) return d(3645,  h(5103))  / r(1.5, h(5103));
   if (f("starfish"))  return d(10935, h(15309)) / r(1.5, h(15309));
   if (f("qstarfish")) return d(32805, h(45927)) / r(1.5, h(45927));
-  // stick
   if (f("ustick")) return d(65610, mh(65610), "ustick") / 5 * 4;
   if (f("stick"))  return d(65610, mh(65610), "stick")  / 5 * 4;
   if (f("qstick")) return d(65610, mh(65610), "qstick") / 5 * 4;
-  // stinger
   if (f("ustinger")) return d(14580)  / r(10)  * (5 + dup);
   if (f("stinger"))  return d(43740)  / r(10)  * (5 + dup);
   if (f("qstinger")) return d(131220) / r(10)  * (5 + dup);
-  // stinger(blood)
   if (f("ustinger(blood)")) return d(14580)  / r(7.5) * (5 + dup);
   if (f("stinger(blood)"))  return d(43740)  / r(7.5) * (5 + dup);
   if (f("qstinger(blood)")) return d(131220) / r(7.5) * (5 + dup);
-  // tomato
   if (f("utomato_0")) return d(3645, h(7290)) / r(2.5, h(7290));
   if (f("utomato")||f("utomato_1")) return d(51030, h(7290)) / (r(2.5, h(7290)) + 1);
   if (f("tomato_0"))  return d(10935, h(21870)) / r(2.5, h(21870));
   if (f("tomato")||f("tomato_1"))   return d(153090, h(21870)) / (r(2.5, h(21870)) + 1);
   if (f("qtomato_0")) return d(32805, h(65610)) / r(2.5, h(65610));
   if (f("qtomato")||f("qtomato_1")) return d(459270, h(65610)) / (r(2.5, h(65610)) + 1);
-  // triangle
   if (f("utriangle")) return d(3645 + 2916*(utri-1), h(7290))  / r(2.0, h(7290));
   if (f("triangle"))  return d(10935 + 8748*(tri-1), h(21870)) / r(2.0, h(21870));
   if (f("qtriangle")) return d(32805 + 26244*tri,     h(65610)) / r(2.0, h(65610));
-  // uranium
   if (f("uuranium")) return 36450  * poison;
   if (f("uranium"))  return 109350 * poison;
   if (f("quranium")) return 328050 * poison;
-  // web(electric)
   if (f("uweb(electric)")) return 3645;
   if (f("web(electric)"))  return 10935;
   if (f("qweb(electric)")) return 32805;
-  // wing
   if (f("uwing")) return d(14580,  h(7290))  / r(3, h(7290));
   if (f("wing"))  return d(43740,  h(21870)) / r(3, h(21870));
   if (f("qwing")) return d(131220, h(65610)) / r(3, h(65610));
-  // yucca
   if (f("uyucca")) return d(3645,  h(7290))  / r(2.5, h(7290));
   if (f("yucca"))  return d(10935, h(21870)) / r(2.5, h(21870));
   if (f("qyucca")) return d(32805, h(65610)) / r(2.5, h(65610));
@@ -534,31 +480,26 @@ function calw(petal){
     const angle = 3.0656 / (2 * Math.PI);
     const lap = Math.floor(rel / T);
     const den = rel - lap * T;
-    if (den === 0) return pyRound(rel / T);      // 对应 Python 的 ZeroDivisionError 分支
+    if (den === 0) return pyRound(rel / T);
     const c = Math.ceil(T * angle / den);
     return c / (lap * c + 1);
   };
 
-  // basic / clover / salt / talisman / yinyang
   if (f("ubasic")||f("uclover")||f("usalt")||f("utalisman")||f("uyinyang")) return d(7290, h(7290))   / T * g(r(2.5, h(7290)));
   if (f("basic") ||f("clover") ||f("salt") ||f("talisman") ||f("yinyang"))  return d(21870, h(21870)) / T * g(r(2.5, h(21870)));
   if (f("qbasic")||f("qclover")||f("qsalt")||f("qtalisman")||f("qyinyang")||f("tbasic")) return d(65610, h(65610)) / T * g(r(2.5, h(65610)));
-  // battery
   if (f("ubattery")) return d(26244,  h(1), "ubattery")  / (r(2.5) + 0.1);
   if (f("battery"))  return d(78732,  h(1), "battery")   / (r(2.5) + 0.1);
   if (f("qbattery")) return d(236196, h(1), "qbattery")  / (r(2.5) + 0.1);
-  // bean
   if (f("ubean")||f("ubean_0")) return d(14580,  h(8748))  / T * g(r(2, h(8748)));
   if (f("ubean_1"))             return d(21870,  h(8748))  / T * g(r(2, h(8748)));
   if (f("bean") ||f("bean_0"))  return d(43740,  h(26244)) / T * g(r(2, h(26244)));
   if (f("bean_1"))              return d(65610,  h(26244)) / T * g(r(2, h(26244)));
   if (f("qbean")||f("qbean_0")) return d(131220, h(78732)) / T * g(r(2, h(78732)));
   if (f("qbean_1"))             return d(196830, h(78732)) / T * g(r(2, h(78732)));
-  // bone
   if (f("ubone")) return d(10206, h(7290),  "ubone") / T * g(r(2.5, h(7290)  + 14580));
   if (f("bone"))  return d(30618, h(21870), "bone")  / T * g(r(2.5, h(21870) + 43740));
   if (f("qbone")) return d(91854, h(65610), "qbone") / T * g(r(2.5, h(65610) + 131220));
-  // broccoli
   if (f("ubroccoli")||f("ubroccoli_0")) return d(10935, h(7290)) / T * g(r(2.8, h(7290)));
   if (f("ubroccoli_1")||f("ubroccoli_2")||f("ubroccoli_3"))
     return (d(10935, h(7290)) + parseInt(petal.slice(10)) * d(3645, h(2430))) / T * g(r(2.8, h(7290)));
@@ -568,103 +509,81 @@ function calw(petal){
   if (f("qbroccoli")||f("qbroccoli_0")) return d(98415, h(65610)) / T * g(r(2.8, h(65610)));
   if (f("qbroccoli_1")||f("qbroccoli_2")||f("qbroccoli_3"))
     return (d(98415, h(65610)) + parseInt(petal.slice(10)) * d(32805, h(21870))) / T * g(r(2.8, h(65610)));
-  // bur
   if (f("ubur")) return d(3645,  h(3645))  / T * g(r(2, h(3645)));
   if (f("bur"))  return d(10935, h(10935)) / T * g(r(2, h(10935)));
   if (f("qbur")) return d(32805, h(32805)) / T * g(r(2, h(32805)));
-  // cactus / cactus(magic)
   if (f("ucactus")||f("ucactus_magic")) return d(5103,  h(10935)) / T * g(r(1, h(10935)));
   if (f("cactus") ||f("cactus_magic"))  return d(15309, h(32805)) / T * g(r(1, h(32805)));
   if (f("qcactus")||f("qcactus_magic")) return d(45927, h(98415)) / T * g(r(1, h(98415)));
-  // card
   if (f("ucard")) return (d(3645, h(21870))/r(2.5, h(21870)) + d(7290, h(18225))/r(2.5, h(18225))
                         + d(10935, h(14580))/r(2.5, h(14580)) + d(14580, h(10935))/T*g(r(2.5, h(10935)))) / 4;
   if (f("card"))  return (d(10935, h(65610))/r(2.5, h(65610)) + d(21870, h(54675))/r(2.5, h(54675))
                         + d(32805, h(43740))/r(2.5, h(43740)) + d(43740, h(32805))/T*g(r(2.5, h(32805)))) / 4;
   if (f("qcard")) return (d(32805, h(196830))/r(2.5, h(196830)) + d(65610, h(164025))/r(2.5, h(164025))
                         + d(98415, h(131220))/r(2.5, h(131220)) + d(131220, h(98415))/T*g(r(2.5, h(98415)))) / 4;
-  // carrot
   if (f("ucarrot_0")) return d(13122/5,  h(13122))  / T * g(r(1, h(13122)));
   if (f("carrot_0"))  return d(39366/5,  h(39366))  / T * g(r(1, h(39366)));
   if (f("qcarrot_0")) return d(118098/5, h(118098)) / T * g(r(1, h(118098)));
   if (f("ucarrot")||f("ucarrot_1")) return d(13122,  h(13122))  / T * g(r(1, h(13122))  + 0.5);
   if (f("carrot") ||f("carrot_1"))  return d(39366,  h(39366))  / T * g(r(1, h(39366))  + 0.5);
   if (f("qcarrot")||f("carrot_1"))  return d(118098, h(118098)) / T * g(r(1, h(118098)) + 0.5);
-  // chip
   if (f("uchip")) return d(5103,  h(2187)) * 10 / T * g(r(2.5, h(2187) + 0.9**10/(1-0.9**10)*0.04));
   if (f("chip"))  return d(15309, h(2187)) * 10 / T * g(r(2.5, h(2187)) + 0.9**10/(1-0.9**10)*0.04);
   if (f("qchip")) return d(45927, h(2187)) * 10 / T * g(r(2.5, h(2187) + 0.9**10/(1-0.9**10)*0.04));
-  // claw
   if (f("uclaw_0")) return d(3645,  h(7290))  / T * g(r(3.5, h(7290)));
   if (f("uclaw")||f("uclaw_1")) return d(3645,  h(7290),  "uclaw") / T * g(r(3.5, h(7290)));
   if (f("claw_0"))  return d(10935, h(21870)) / T * g(r(3.5, h(21870)));
   if (f("claw") ||f("claw_1"))  return d(10935, h(21870), "claw")  / T * g(r(3.5, h(21870)));
   if (f("qclaw_0")) return d(32805, h(65610)) / T * g(r(3.5, h(65610)));
   if (f("qclaw")||f("qclaw_1")) return d(32805, h(65610), "qclaw") / T * g(r(3.5, h(65610)));
-  // clay
   if (f("uclay")||f("uclay_0")) return d(3645,  h(7290))  / T * g(r(2, h(7290)));
   if (f("uclay_1"))             return d(72900, h(7290))  / T * g(r(2, h(7290)));
   if (f("clay") ||f("clay_0"))  return d(10935, h(21870)) / T * g(r(2, h(21870)));
   if (f("clay_1"))              return d(218700,h(21870)) / T * g(r(2, h(21870)));
   if (f("qclay")||f("qclay_0")) return d(32805, h(65610)) / T * g(r(2, h(65610)));
   if (f("qclay_1"))             return d(656100,h(65610)) / T * g(r(2, h(65610)));
-  // cog
   if (f("ucog")) return d(13851,  h(9477))  / T * g(r(2.5, h(9477)));
   if (f("cog"))  return d(41553,  h(28431)) / T * g(r(2.5, h(28431)));
   if (f("qcog")) return d(124659, h(85293)) / T * g(r(2.5, h(85293)));
-  // coin
   if (f("ucoin")) return d(10935, h(7290))  / T * g(r(2.5, h(7290)));
   if (f("coin"))  return d(32805, h(21870)) / T * g(r(2.5, h(21870)));
   if (f("qcoin")) return d(98415, h(65610)) / T * g(r(2.5, h(65610)));
-  // coral
   if (f("ucoral")) return d(8019*3/7)  / T * g(r(1.5) + 0.08) * 7;
   if (f("coral"))  return d(24057*3/7) / T * g(r(1.5) + 0.08) * 7;
   if (f("qcoral")) return d(72171*3/7) / T * g(r(1.5) + 0.08) * 7;
-  // corn
   if (f("ucorn")) return d(5832,  h(145800))  / T * g(r(7, h(145800)));
   if (f("corn"))  return d(17496, h(437400))  / T * g(r(7, h(437400)));
   if (f("qcorn")) return d(52488, h(1312200)) / T * g(r(7, h(1312200)));
-  // dandelion
   if (f("udandelion")) return d(1944,  h(1944))  / T * g(r(1, h(1944)))  * (3 + dup);
   if (f("dandelion"))  return d(5832,  h(5832))  / T * g(r(1, h(5832)))  * (3 + dup);
   if (f("qdandelion")) return d(17496, h(17496)) / T * g(r(1, h(17496))) * (3 + dup);
-  // dice
   if (f("udice")) return d(7290  * (2.7 + 1.36*luck), h(7290))  / T * g(r(2.5, h(7290)));
   if (f("dice"))  return d(21870 * (2.7 + 1.36*luck), h(21870)) / T * g(r(2.5, h(21870)));
   if (f("qdice")) return d(65610 * (2.7 + 1.36*luck), h(65610)) / T * g(r(2.5, h(65610)));
-  // domino
   if (f("udomino")) return (d(0,h(11664))*7 + d(729,h(11664)) + d(729*2,h(11664)) + d(729*3,h(11664)) + d(729*4,h(11664))*2 + d(729*5,h(11664)) + d(729*6,h(11664))*2 + d(729*8,h(11664)) + d(729*9,h(11664)) + d(729*10,h(11664)) + d(729*12,h(11664))*2 + d(729*15,h(11664)) + d(729*16,h(11664)) + d(729*18,h(11664)) + d(729*20,h(11664)) + d(729*24,h(11664)) + d(729*25,h(11664)) + d(729*30,h(11664)) + d(729*36,h(11664))) / T * g(r(1.0, h(11664))) / 28;
   if (f("domino"))  return (d(0,h(34992))*7 + d(2187,h(34992)) + d(2187*2,h(34992)) + d(2187*3,h(34992)) + d(2187*4,h(34992))*2 + d(2187*5,h(34992)) + d(2187*6,h(34992))*2 + d(2187*8,h(34992)) + d(2187*9,h(34992)) + d(2187*10,h(34992)) + d(2187*12,h(34992))*2 + d(2187*15,h(34992)) + d(2187*16,h(34992)) + d(2187*18,h(34992)) + d(2187*20,h(34992)) + d(2187*24,h(34992)) + d(2187*25,h(34992)) + d(2187*30,h(34992)) + d(2187*36,h(34992))) / T * g(r(1.0, h(34992))) / 28;
   if (f("qdomino")) return (d(0,h(104976))*7 + d(6561,h(104976)) + d(6561*2,h(104976)) + d(6561*3,h(104976)) + d(6561*4,h(104976))*2 + d(6561*5,h(104976)) + d(6561*6,h(104976))*2 + d(6561*8,h(104976)) + d(6561*9,h(104976)) + d(6561*10,h(104976)) + d(6561*12,h(104976))*2 + d(6561*15,h(104976)) + d(6561*16,h(104976)) + d(6561*18,h(104976)) + d(6561*20,h(104976)) + d(6561*24,h(104976)) + d(6561*25,h(104976)) + d(6561*30,h(104976)) + d(6561*36,h(104976))) / T * g(r(1.0, h(104976))) / 28;
-  // dust
   if (f("udust")) return d(3159, h(1215)) / T * g(r(0.8, h(1215)) * (3 + dup));
   if (f("dust"))  return d(9477, h(3645)) / T * g(r(0.8, h(3645)) * (3 + dup));
   if (f("qdust")) return d(28431,h(10935)) / T * g(r(0.8, h(10935)) * (3 + dup));
-  // agg
   if (f("uagg")) return d(4374,  mh(182250),  "uagg") / T * g(mr(60, mh(182250)))  * (4 + dup);
   if (f("agg"))  return d(13122, mh(546750),  "agg")  / T * g(mr(60, mh(547650)))  * (4 + dup);
   if (f("qagg")) return d(39366, mh(1640250), "qagg") / T * g(mr(60, mh(1640250))) * (4 + dup);
-  // bgg
   if (f("ubgg")) return d(5103,  mh(364500),  "ubgg") / T * g(mr(30, mh(1093500)));
   if (f("bgg"))  return d(15309, mh(1093500), "bgg")  / T * g(mr(30, mh(1093500)));
   if (f("qbgg")) return d(45927, mh(3280500), "qbgg") / T * g(mr(30, mh(3280500)));
-  // fang
   if (f("ufang")) return d(10935) / T * g(r(3.5));
   if (f("fang"))  return d(32805) / T * g(r(3.5));
   if (f("qfang")) return d(98415) / T * g(r(3.5));
-  // faster
   if (f("ufaster")) return d(8748,  h(3645))  / T * g(r(2.5, h(3645)));
   if (f("faster"))  return d(26244, h(10935)) / T * g(r(2.5, h(10935)));
   if (f("qfaster")) return d(78732, h(32805)) / T * g(r(2.5, h(32805)));
-  // fragment / mjolnir
   if (f("ufragment")) return d(364.5, h(364.5)) / T * g(r(10, h(364.5))) * 2;
   if (f("fragment"))  return d(729,   h(729))   / T * g(r(10, h(729)))   * 3;
   if (f("qmjolnir")||f("qmjölnir")) return d(328050, h(328050), "qmjolnir") / T * g(r(8, h(328050)));
-  // glass
   if (f("uglass")) return d(16038)  / T * g(1);
   if (f("glass"))  return d(48114)  / T * g(1);
   if (f("qglass")) return d(144342) / T * g(1);
-  // grapes
   if (f("ugrapes")||f("ugrapes_0")) return d(2187, h(3645)) / T * g(r(1.5, h(3645))) + (18225/0.7) * poison;
   if (f("ugrapes_1")||f("ugrapes_2")||f("ugrapes_3")||f("ugrapes_4")||f("ugrapes_5")||f("ugrapes_6"))
     return (d(2187, h(3645)) / T * g(r(1.5, h(3645) + 0.5)) + (18225/0.7) * poison) * parseInt(petal.slice(8));
@@ -674,50 +593,39 @@ function calw(petal){
   if (f("qgrapes")||f("qgrapes_0")) return d(19683, h(32805)) / T * g(r(1.5, h(32805))) + (164025/0.7) * poison;
   if (f("qgrapes_1")||f("qgrapes_2")||f("qgrapes_3")||f("qgrapes_4")||f("qgrapes_5")||f("qgrapes_6"))
     return (d(19683, h(32805)) / T * g(r(1.5, h(32805) + 0.5)) + (164025/0.7) * poison) * parseInt(petal.slice(8));
-  // heavy
   if (f("uheavy")) return d(9477,  h(109350)) / T * g(r(10, h(109350)));
   if (f("heavy"))  return d(28431, h(328050)) / T * g(r(10, h(328050)));
   if (f("qheavy")) return d(85293, h(984150)) / T * g(r(10, h(984150)));
-  // iris
   if (f("uiris")) return d(3645,  h(3645))  / T * g(r(4, h(3645)))  + 17010  * poison;
   if (f("iris"))  return d(10935, h(10935)) / T * g(r(4, h(10935))) + 51030  * poison;
   if (f("qiris")) return d(32805, h(32805)) / T * g(r(4, h(32805))) + 153090 * poison;
-  // jelly
   if (f("ujelly")) return d(7290,  h(7290))  / T * g(hr(10, h(7290)));
   if (f("jelly"))  return d(21870, h(21870)) / T * g(hr(10, h(21870)));
   if (f("qjelly")) return d(65610, h(65610)) / T * g(hr(10, h(65610)));
-  // laser
   if (f("ulaser_0")) return d(3645,  h(7290))  / T * g(hr(5, h(7290)));
   if (f("ulaser")||f("ulaser_1")) return 36450;
   if (f("laser_0"))  return d(10935, h(21870)) / T * g(hr(5, h(21870)));
   if (f("laser") ||f("laser_1"))  return 109350;
   if (f("qlaser_0")) return d(32805, h(65610)) / T * g(hr(5, h(65610)));
   if (f("qlaser")||f("laser_1"))  return 328050;
-  // leaf / leaf(magic)
   if (f("uleaf")||f("uleaf(magic)")) return d(11664,  h(8748))  / T * g(r(1.8, h(8748)));
   if (f("leaf") ||f("leaf(magic)"))  return d(34992,  h(26244)) / T * g(r(1.8, h(26244)));
   if (f("qleaf")||f("qleaf(magic)")) return d(104976, h(78732)) / T * g(r(1.8, h(78732)));
-  // leaf(dead)
   if (f("udl")||f("uleaf(dead)")) return d(11664, h(8748))  / T * g(r(1.8/1.05, h(8748 /petalhealth*(petalhealth-0.3))));
   if (f("dl") ||f("leaf(dead)"))  return d(34992, h(26244)) / T * g(r(1.8/1.05, h(26244/petalhealth*(petalhealth-0.45))));
   if (f("qdl")||f("qleaf(dead)")) return d(104976,h(78732)) / T * g(r(1.8/1.05, h(78732/petalhealth*(petalhealth-0.6))));
-  // leaf(golden)
   if (f("ugl")||f("uleaf(golden)")) return d(11664,  h(8748))  / T * g(r(2.5/0.825, h(8748)));
   if (f("gl") ||f("leaf(golden)"))  return d(34992,  h(26244)) / T * g(r(2.5/0.8,   h(26244)));
   if (f("qgl")||f("qleaf(golden)")) return d(104976, h(78732)) / T * g(r(2.5/0.775, h(78732)));
-  // lentil
   if (f("ulentil")) return d(9477,  h(8748))  / T * g(r(2, h(8748)));
   if (f("lentil"))  return d(28431, h(26244)) / T * g(r(2, h(26244)));
   if (f("qlentil")) return d(85293, h(78732)) / T * g(r(2, h(78732)));
-  // light
   if (f("ulight")) return d(1895.4,  h(729))  / T * g(r(0.8, h(729)))  * (5 + dup);
   if (f("light"))  return d(5686.2,  h(2187)) / T * g(r(0.8, h(2187))) * (5 + dup);
   if (f("qlight")) return d(17058.6, h(6561)) / T * g(r(0.8, h(6561))) * (5 + dup);
-  // lightning
   if (f("ulightning")) return d(8748,  h(14580),  "ulightning")  / T * g(r(2.5));
   if (f("lightning"))  return d(26244, h(43740),  "lightning")   / T * g(r(2.5));
   if (f("qlightning")) return d(78732, h(131220), "qlightning")  / T * g(r(2.5));
-  // missile / missile(mecha)
   if (f("umissile_0")||f("umissile(mecha)_0")) return d(25515/5,  h(1458))  / T * g(r(1.5, h(1458)));
   if (f("umissile")||f("umissile_1")||f("umissile(mecha)")||f("umissile(mecha)_1"))
     return d(25515, h(1458)) / T * g(r(1.5, h(1458)) + 0.5);
@@ -727,18 +635,15 @@ function calw(petal){
   if (f("qmissile_0")||f("qmissile(mecha)_0")) return d(229635/5, h(13122)) / T * g(r(1.5, h(13122)));
   if (f("qmissile")||f("qmissile_1")||f("qmissile(mecha)")||f("qmissile(mecha)_1"))
     return d(229635, h(13122)) / T * g(r(1.5, h(13122)) + 0.5);
-  // orange
   if (f("uorange")) return d(5832,  h(4860))  / T * g(r(3.5, h(4860)))  * (3 + dup);
   if (f("orange"))  return d(17496, h(14580)) / T * g(r(3.5, h(14580))) * (3 + dup);
   if (f("qorange")) return d(52488, h(43740)) / T * g(r(3.5, h(43740))) * (3 + dup);
-  // pearl
   if (f("upearl")||f("upearl_0")) return d(14580,  h(36450))  / T * g(r(4, h(36450)));
   if (f("upearl_1"))              return d(14580,  h(36450))  / T * g(r(4, h(36450))  + 0.5);
   if (f("pearl") ||f("pearl_0"))  return d(43740,  h(109350)) / T * g(r(4, h(109350)));
   if (f("pearl_1"))               return d(43740,  h(109350)) / T * g(r(4, h(109350)) + 0.5);
   if (f("qpearl")||f("qpearl_0")) return d(131220, h(328050)) / T * g(r(4, h(328050)));
   if (f("qpearl_1"))              return d(131220, h(328050)) / T * g(r(4, h(328050)) + 0.5);
-  // peas
   if (f("upeas")||f("upeas_0")) return d(10935, h(3645)) / T * g(r(1.5, h(3645)));
   if (f("upeas_1")||f("upeas_2")||f("upeas_3")||f("upeas_4")||f("upeas_5")||f("upeas_6"))
     return d(10935, h(3645)) / T * g(r(1.5, h(3645)) + 0.5) * parseInt(petal.slice(6));
@@ -748,18 +653,15 @@ function calw(petal){
   if (f("qpeas")||f("qpeas_0")) return d(98415, h(32805)) / T * g(r(1.5, h(32805)));
   if (f("qpeas_1")||f("qpeas_2")||f("qpeas_3")||f("qpeas_4")||f("qpeas_5")||f("qpeas_6"))
     return d(98415, h(32805)) / T * g(r(1.5, h(32805)) + 0.5) * parseInt(petal.slice(6));
-  // pincer
   if (f("upincer")) return d(3645,  h(3645))  / T * g(r(2.5, h(3645)))  + 14580  * poison;
   if (f("pincer"))  return d(10935, h(10935)) / T * g(r(2.5, h(10935))) + 43740  * poison;
   if (f("qpincer")) return d(32805, h(32805)) / T * g(r(2.5, h(32805))) + 131220 * poison;
-  // pollen
   if (f("upollen_0")) return d(9234, h(1215)) / T * g(r(2, h(1215))) * (3 + dup);
   if (f("upollen")||f("upollen_1")) return d(9234, h(1215)) / T * g(r(2, h(1215)) + 0.5) * (3 + dup);
   if (f("pollen_0"))  return d(27702, h(3645)) / T * g(r(2, h(3645))) * (3 + dup);
   if (f("pollen")||f("pollen_1"))   return d(27702, h(3645)) / T * g(r(2, h(3645)) + 0.5) * (3 + dup);
   if (f("qpollen_0")) return d(83106, h(10935)) / T * g(r(2, h(10935))) * (3 + dup);
   if (f("qpollen")||f("qpollen_1")) return d(83106, h(10935)) / T * g(r(2, h(10935)) + 0.5) * (3 + dup);
-  // privet
   if (f("uprivet_ug")) return (18225/0.7)*poison*0.2 / T * g(r(4*0.7**6));
   if (f("uprivet_ui")) return 17010*poison*0.2 / T * g(r(4*0.7**6));
   if (f("uprivet_up")) return 14580*poison*0.2 / T * g(r(4*0.7**6));
@@ -787,4 +689,215 @@ function calw(petal){
   if (f("uprivet_qg")) return (164025/0.7)*poison*0.2 / T * g(r(4*0.7**6));
   if (f("uprivet_qi")) return 153090*poison*0.2 / T * g(r(4*0.7**6));
   if (f("uprivet_qp")) return 131220*poison*0.2 / T * g(r(4*0.7**6));
-  if (f("uprivet_qu")) return 328050*
+  if (f("uprivet_qu")) return 328050*poison*0.2 / T * g(r(4*0.7**6));
+  if (f("privet_qg"))  return (164025/0.7)*poison*0.2 / T * g(r(4*0.7**7));
+  if (f("privet_qi"))  return 153090*poison*0.2 / T * g(r(4*0.7**7));
+  if (f("privet_qp"))  return 131220*poison*0.2 / T * g(r(4*0.7**7));
+  if (f("privet_qu"))  return 328050*poison*0.2 / T * g(r(4*0.7**7));
+  if (f("qprivet_qg")) return (164025/0.7)*poison*0.2 / T * g(r(4*0.7**8));
+  if (f("qprivet_qi")) return 153090*poison*0.2 / T * g(r(4*0.7**8));
+  if (f("qprivet_qp")) return 131220*poison*0.2 / T * g(r(4*0.7**8));
+  if (f("qprivet_qu")) return 328050*poison*0.2 / T * g(r(4*0.7**8));
+  if (f("urice")) return d(2916,  h(729))  / T * g(r(0.05, h(729)));
+  if (f("rice"))  return d(8748,  h(2187)) / T * g(r(0.05, h(2187)));
+  if (f("qrice")) return d(26244, h(6561)) / T * g(r(0.05, h(6561)));
+  if (f("urock")) return d(16038,  h(21870))  / T * g(r(3, h(21870)));
+  if (f("rock"))  return d(48114,  h(65610))  / T * g(r(3, h(65610)));
+  if (f("qrock")) return d(144342, h(196830)) / T * g(r(3, h(196830)));
+  if (f("usand")) return d(3645,  h(911.25))  / T * g(r(1.5, h(911.25))  * (4 + dup));
+  if (f("sand"))  return d(10935, h(2733.75)) / T * g(r(1.5, h(2733.75)) * (4 + dup));
+  if (f("qsand")) return d(32805, h(8201.25)) / T * g(r(1.5, h(8201.25)) * (4 + dup));
+  if (f("usawblade")) return d(29160,  h(18225))  / T * g(r(2.5, h(18225)));
+  if (f("sawblade"))  return d(87480,  h(54675))  / T * g(r(2.5, h(54675)));
+  if (f("qsawblade")) return d(262440, h(164025)) / T * g(r(2.5, h(164025)));
+  if (f("ustarfish")) return d(3645,  h(5103))  / T * g(r(1.5, h(5103)));
+  if (f("starfish"))  return d(10935, h(15309)) / T * g(r(1.5, h(15309)));
+  if (f("qstarfish")) return d(32805, h(45927)) / T * g(r(1.5, h(45927)));
+  if (f("ustick")) return d(65610, mh(65610), "ustick") / 5 * 4;
+  if (f("stick"))  return d(65610, mh(65610), "stick")  / 5 * 4;
+  if (f("qstick")) return d(65610, mh(65610), "qstick") / 5 * 4;
+  if (f("ustinger")) return d(14580)  / T * g(r(10))  * (5 + dup);
+  if (f("stinger"))  return d(43740)  / T * g(r(10))  * (5 + dup);
+  if (f("qstinger")) return d(131220) / T * g(r(10))  * (5 + dup);
+  if (f("ustinger(blood)")) return d(14580)  / T * g(r(7.5)) * (5 + dup);
+  if (f("stinger(blood)"))  return d(43740)  / T * g(r(7.5)) * (5 + dup);
+  if (f("qstinger(blood)")) return d(131220) / T * g(r(7.5)) * (5 + dup);
+  if (f("utomato_0")) return d(3645, h(7290)) / T * g(r(2.5, h(7290)));
+  if (f("utomato")||f("utomato_1")) return d(51030, h(7290)) / T * g(r(2.5, h(7290)) + 1);
+  if (f("tomato_0"))  return d(10935, h(21870)) / T * g(r(2.5, h(21870)));
+  if (f("tomato")||f("tomato_1"))   return d(153090, h(21870)) / T * g(r(2.5, h(21870)) + 1);
+  if (f("qtomato_0")) return d(32805, h(65610)) / T * g(r(2.5, h(65610)));
+  if (f("qtomato")||f("qtomato_1")) return d(459270, h(65610)) / T * g(r(2.5, h(65610)) + 1);
+  if (f("utriangle")) return d(3645 + 2916*(utri-1), h(7290))  / T * g(r(2.0, h(7290)));
+  if (f("triangle"))  return d(10935 + 8748*(tri-1), h(21870)) / T * g(r(2.0, h(21870)));
+  if (f("qtriangle")) return d(32805 + 26244*tri,     h(65610)) / T * g(r(2.0, h(65610)));
+  if (f("uuranium")) return 36450  * poison;
+  if (f("uranium"))  return 109350 * poison;
+  if (f("quranium")) return 328050 * poison;
+  if (f("uweb(electric)")) return 3645;
+  if (f("web(electric)"))  return 10935;
+  if (f("qweb(electric)")) return 32805;
+  if (f("uwing")) return d(14580,  h(7290))  / T * g(r(3, h(7290)));
+  if (f("wing"))  return d(43740,  h(21870)) / T * g(r(3, h(21870)));
+  if (f("qwing")) return d(131220, h(65610)) / T * g(r(3, h(65610)));
+  if (f("uyucca")) return d(3645,  h(7290))  / T * g(r(2.5, h(7290)));
+  if (f("yucca"))  return d(10935, h(21870)) / T * g(r(2.5, h(21870)));
+  if (f("qyucca")) return d(32805, h(65610)) / T * g(r(2.5, h(65610)));
+
+  return 0;
+}
+
+/* ========================= 核心执行与渲染 ========================= */
+function analyze(buildStr, talentStr, x, y, mode, lentildis, rotspeed) {
+    let build = buildStr.trim().split(/\s+/).filter(s => s);
+    
+    // 展开带数字前缀的花瓣 (如 2pearl)
+    let expanded = true;
+    while (expanded) {
+        expanded = false;
+        for (let i = 0; i < build.length; i++) {
+            let petal = build[i];
+            if (/^\d/.test(petal)) {
+                expanded = true;
+                let match = petal.match(/^(\d+)(.*)$/);
+                let times = parseInt(match[1], 10);
+                let name = match[2];
+                build.splice(i, 1);
+                for (let j = 0; j < times; j++) {
+                    build.splice(i + j, 0, name);
+                }
+                break;
+            }
+        }
+    }
+
+    let talent = talentStr.trim().split(/\s+/).filter(s => s);
+    
+    petalhealth = ph_buff[talent[0]] || 1;
+    reload = reload_buff[talent[1]] || 1;
+    summoner = summoner_buff[talent[2]] || 1;
+    luck = luck_buff[talent[3]] || 0;
+    poison = (poison_buff[talent[4]] || 1) * (cpoison_buff[talent[5]] || 1);
+    dup = dup_buff[talent[6]] || 0;
+    rot = 2.5;
+    
+    if (dup === 3) {
+        build.unshift(build[0]);
+        dup = 2;
+    }
+    
+    if (talent.length >= 8) {
+        rot += rot_buff[talent[7]] || 0;
+    }
+
+    ed = x;
+    ea = y;
+    dis = lentildis;
+
+    const count = (arr, val) => arr.filter(v => v === val).length;
+
+    ea -= (count(build, "ubur") + count(build, "ubur(yy)")) * 1093.5;
+    ea -= (count(build, "bur") + count(build, "bur(yy)")) * 3280.5;
+    ea -= (count(build, "qbur") + count(build, "qbur(yy)")) * 9841.5;
+
+    luck += (count(build, "uclover") + count(build, "uclover_")) * 0.7;
+    luck += (count(build, "clover") + count(build, "clover_")) * 0.8;
+    luck += (count(build, "qclover") + count(build, "qclover_")) * 0.9;
+
+    rot += (count(build, "ufaster") + count(build, "ufaster_")) * 1.7;
+    rot += (count(build, "faster") + count(build, "faster_")) * 1.9;
+    rot += (count(build, "qfaster") + count(build, "qfaster_")) * 2.1;
+    
+    rot *= 0.3 + rotspeed * 0.7;
+    T = 2 * Math.PI / rot;
+
+    udl = count(build, "udl") + count(build, "udl_");
+    dl = count(build, "dl") + count(build, "dl_");
+    qdl = count(build, "qdl") + count(build, "qdl_");
+
+    ugl = count(build, "ugl") + count(build, "ugl_");
+    gl = count(build, "gl") + count(build, "gl_");
+    qgl = count(build, "qgl") + count(build, "qgl_");
+
+    ph_bonus = petalhealth + udl * 0.3 + dl * 0.45 + qdl * 0.6;
+    utri = count(build, "utriangle") + count(build, "utriangle_");
+    tri = count(build, "triangle") + count(build, "triangle_");
+
+    let dps = [];
+    if (mode === "lentil" || mode === "yy") {
+        for (let petal of build) {
+            dps.push(pyRound(cal(petal)));
+        }
+    } else if (mode === "wheel") {
+        for (let petal of build) {
+            dps.push(pyRound(calw(petal)));
+        }
+    }
+
+    let infoHtml = "";
+    if (mode === "wheel") {
+        infoHtml += `Rotation Speed: ${rot / (0.3 + 0.7 * rotspeed)} * (0.3 + 0.7 * ${rotspeed}) = ${rot.toFixed(3)}\n`;
+        infoHtml += `Period(T): ${(2 * Math.PI / rot).toFixed(3)}s\n`;
+    }
+
+    let tableHtml = `<div class="tbl-wrap"><table><tr><th>花瓣</th>`;
+    for (let petal of build) tableHtml += `<th>${petal}</th>`;
+    tableHtml += `<th>总计</th></tr><tr><td class="rowhead">DPS</td>`;
+    for (let val of dps) tableHtml += `<td class="dps">${val}</td>`;
+    let total = dps.reduce((a, b) => a + b, 0);
+    tableHtml += `<td class="total">${total}</td></tr></table></div>`;
+
+    document.getElementById("info").innerText = infoHtml;
+    document.getElementById("out").innerHTML = tableHtml;
+}
+
+/* ========================= 事件绑定 ========================= */
+document.getElementById("run").addEventListener("click", () => {
+    try {
+        const build = document.getElementById("build").value;
+        const talent = document.getElementById("talent").value;
+        const x = parseFloat(document.getElementById("x").value) || 0;
+        const y = parseFloat(document.getElementById("y").value) || 0;
+        const mode = document.getElementById("mode").value;
+        const lentildis = parseFloat(document.getElementById("lentildis").value) || 0;
+        const rotspeed = parseFloat(document.getElementById("rotspeed").value) || 1;
+        
+        analyze(build, talent, x, y, mode, lentildis, rotspeed);
+    } catch (e) {
+        console.error(e);
+        document.getElementById("out").innerHTML = `<div class="err">计算时出错：${e.message}</div>`;
+        document.getElementById("info").innerText = "";
+    }
+});
+
+document.querySelectorAll('button[data-ex]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const id = e.target.getAttribute('data-ex');
+        if (id === '1') {
+            document.getElementById('build').value = "faster 9triangle";
+            document.getElementById('talent').value = "Et U - - - - - L";
+            document.getElementById('x').value = 7290;
+            document.getElementById('y').value = 583.2;
+            document.getElementById('mode').value = "wheel";
+            document.getElementById('rotspeed').value = 1;
+        } else if (id === '2') {
+            document.getElementById('build').value = "2chip bur(yy) 6ugl_ unazar";
+            document.getElementById('talent').value = "- Et - - - - S";
+            document.getElementById('x').value = 21870;
+            document.getElementById('y').value = 583.2;
+            document.getElementById('mode').value = "yy";
+        } else if (id === '3') {
+            document.getElementById('build').value = "2ugl_ 4dust bur 2ulentil";
+            document.getElementById('talent').value = "- Et - - - - S";
+            document.getElementById('x').value = 21870;
+            document.getElementById('y').value = 583.2;
+            document.getElementById('mode').value = "lentil";
+            document.getElementById('lentildis').value = 112;
+        }
+        document.getElementById('run').click();
+    });
+});
+</script>
+</body>
+</html>
+```
