@@ -859,7 +859,12 @@ document.getElementById("run").addEventListener("click", () => {
         const x = parseFloat(document.getElementById("x").value) || 0;
         const y = parseFloat(document.getElementById("y").value) || 0;
         const mode = document.getElementById("mode").value;
-        const lentildis = parseFloat(document.getElementById("lentildis").value) || 0;
+        
+        // 在这里使用 Math.abs() 自动取绝对值
+        const lentildis = Math.abs(parseFloat(document.getElementById("lentildis").value) || 0);
+        // 顺便把输入框里的值也替换成取绝对值后的数字
+        document.getElementById("lentildis").value = lentildis;
+        
         const rotspeed = parseFloat(document.getElementById("rotspeed").value) || 1;
         
         analyze(build, talent, x, y, mode, lentildis, rotspeed);
@@ -869,7 +874,6 @@ document.getElementById("run").addEventListener("click", () => {
         document.getElementById("info").innerText = "";
     }
 });
-
 document.querySelectorAll('button[data-ex]').forEach(btn => {
     btn.addEventListener('click', (e) => {
         const id = e.target.getAttribute('data-ex');
